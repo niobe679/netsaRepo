@@ -16,7 +16,7 @@ COPY . .
 WORKDIR /app
 
 # Expose the port (adjust if necessary)
-EXPOSE 5000
+EXPOSE 8080
 
 # Command to start the server
 CMD ["node", "src/server.js"]
