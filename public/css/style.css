@@ -93,3 +93,41 @@ body {
     bottom: 0;
     width: 100%;
   }  
+  /* public/css/styles.css */
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #333;
+}
+.logo {
+  margin-right: 15px; /* Add space between logo and links */
+}
+.logo-img {
+  height: 5px;  /* Adjust this value to change the logo size */
+  width: auto;   /* Automatically adjust the width to maintain the aspect ratio */
+  margin-right: 20px;  
+  max-width: 10%;
+  object-fit: contain;
+  max-height: 20px; 
+}
+
+.nav-links {
+  display: flex;
+  list-style-type: none;
+}
+
+.nav-links li {
+  margin: 0 15px;
+}
+
+.nav-links a {
+  color: white;
+  text-decoration: none;
+  font-size: 16px;
+}
+
+.nav-links a:hover {
+  color: #f1c40f;  /* Highlight color on hover */
+}

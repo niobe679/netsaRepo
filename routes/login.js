@@ -3,7 +3,7 @@ const router = express.Router();
 
 // Route to render the Sign Up page
 router.get('/', (req, res) => {
-  res.render('signup', { title: 'Sign Up' });
+  res.render('login', { title: 'Log in' });
 });
 
 // // Route to handle the POST request when the sign up form is submitted

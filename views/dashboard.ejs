@@ -14,9 +14,9 @@
 
   <!-- Hero Section -->
   <section class="py-5 bg-light text-center">
-    <div class="container">
-      <h1>Welcome to <%= title %></h1>
-      <p class="lead">Find your perfect property quickly and easily.</p>
+    <div class="container" style="background-color: #102e44 ;  background-size: cover;  background-repeat: no-repeat;background-position: center; height: 170px; width: auto; ">
+      <h1 style="color: white;">Welcome to <%= title %></h1>
+      <p class="lead" style="margin-top: 10px; color: white;">Find your perfect property quickly and easily.</p>
     </div>
   </section>
 
@@ -36,7 +36,21 @@
               </div>
             </div>
           </div>
-        <% }) %>
+        <% }) %> 
+      </div>
+      <div class="row">
+        <% properties.forEach(property => { %>
+          <div class="col-md-4 mb-4">
+            <div class="card shadow-sm">
+              <img src="<%= property.image %>" class="card-img-top" alt="<%= property.name %>">
+              <div class="card-body">
+                <h5 class="card-title"><%= property.name %></h5>
+                <p class="card-text">Location: <%= property.location %></p>
+                <p class="fw-bold text-primary">Price: <%= property.price %></p>
+              </div>
+            </div>
+          </div>
+        <% }) %> 
       </div>
     </div>
   </section>
