@@ -17,10 +17,10 @@ const loginRoutes = require(path.join("../routes/login"))
 const authRoutes = require(path.join('../routes/auth'));
 app.use('/api/auth', authRoutes);
 
-mongoose.connect("mongodb+srv://netsanetbahiru24:Bg1GFxYjUjteYiOj@cluster0.gxebe.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0").then(() => console.log("MongoDB connected"))
+mongoose.connect(process.env.MONGO_URI_Prod).then(() => console.log("MongoDB connected"))
   .catch((err) => console.log("MongoDB connection error: ", err));
-  console.log("MONGODB_URI_Prod:", process.env.MONGO_URI_Prod);
-  console.log("All Environment Variables:", process.env);
+  //console.log("MONGODB_URI_Prod:", process.env.MONGO_URI_Prod);
+  //console.log("All Environment Variables:", process.env);
 
 
 // Set the view engine to EJS
