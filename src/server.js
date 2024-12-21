@@ -20,6 +20,8 @@ app.use('/api/auth', authRoutes);
 mongoose.connect("mongodb+srv://netsanetbahiru24:Bg1GFxYjUjteYiOj@cluster0.gxebe.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0").then(() => console.log("MongoDB connected"))
   .catch((err) => console.log("MongoDB connection error: ", err));
   console.log("MONGODB_URI_Prod:", process.env.MONGO_URI_Prod);
+  console.log("All Environment Variables:", process.env);
+
 
 // Set the view engine to EJS
 app.set('view engine', 'ejs');
