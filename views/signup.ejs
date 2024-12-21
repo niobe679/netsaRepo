@@ -235,10 +235,10 @@
     const result = await response.text();
     if (response.ok) {
         window.location.href = "/"; 
-        console.log(result);// Redirect to the dashboard
+        console.log("registered successfull");// Redirect to the dashboard
     } else {
        
-        console.log(result); // Handle login errors
+        console.log("not registered " +result); // Handle login errors
     }
 
 });

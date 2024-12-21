@@ -5,18 +5,16 @@ FROM node:18
 WORKDIR /app
 
 # Copy package.json and install dependencies
-COPY package*.json ./
+COPY package.json .
+
+# Install dependencies
 RUN npm install
 
 # Copy the rest of the server files
 COPY . .  
-# Copies everything in server/ to /app
-
-# Change the working directory to src where server.js is located
-WORKDIR /app
 
 # Expose the port (adjust if necessary)
 EXPOSE 5000
 
 # Command to start the server
-CMD ["node", "src/server.js"]
+CMD ["node", "./src/server.js"]

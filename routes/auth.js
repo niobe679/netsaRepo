@@ -17,7 +17,7 @@ router.post('/register', async (req, res) => {
         //res.redirect("/")
     }
     catch(error){
-        res.status(444).send("User registered");
+        res.status(444).send("not registered");
     }
 });
 
@@ -30,7 +30,7 @@ router.post('/login', async (req, res) => {
         return res.status(401).send("Invalid credentials");
     }
     else{
-        console.log("login");
+        console.log("user logged in");
         res.status(201).send("User logged in");
     }
     //const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });

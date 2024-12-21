@@ -17,10 +17,7 @@ const loginRoutes = require(path.join("../routes/login"))
 const authRoutes = require(path.join('../routes/auth'));
 app.use('/api/auth', authRoutes);
 
-mongoose.connect(process.env.MONGO_URI_Local, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-}).then(() => console.log("MongoDB connected"))
+mongoose.connect(process.env.MONGO_URI_Prod).then(() => console.log("MongoDB connected"))
   .catch((err) => console.log("MongoDB connection error: ", err));
 
 // Set the view engine to EJS
