@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Add New Property</title>
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <h2>Admin Panel</h2>
+            <ul>
+                <li><a href="/admin/dashboard">Dashboard</a></li>
+                <li><a href="/admin/properties" class="active">Manage Properties</a></li>
+                <li><a href="/admin/users">Manage Users</a></li>
+                <li><a href="/logout">Logout</a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <h1>Add New Property</h1>
+            <form action="/admin/addproperties" method="POST" class="form" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="name">Property Name:</label>
+                    <input type="text" id="name" name="name" placeholder="Enter property name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="price">Price:</label>
+                    <input type="number" id="price" name="price" placeholder="Enter price" required>
+                </div>
+
+                <div class="form-group">
+                <label for="rob">Rent or Buy:</label>
+                <select id="rob" name="rob" required>
+                    <option value="">Rent or Buy</option>
+                    <option value="rent">Rent</option>
+                    <option value="buy">Buy</option>
+                  </select>
+                  </div>
+
+                <div class="form-group">
+                    <label for="location">Location:</label>
+                    <input type="text" id="location" name="location" placeholder="Enter location" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="bedrooms">Bedrooms:</label>
+                    <input type="number" id="bedrooms" name="bedrooms" placeholder="Enter number of bedrooms" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="squarefeet">Square Feet:</label>
+                    <input type="number" id="squarefeet" name="squarefeet" placeholder="Enter square footage" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="type">Property Type:</label>
+                    <select id="type" name="type" required>
+                        <option value="" disabled selected>Select type</option>
+                        <option value="apartment">Apartment</option>
+                        <option value="house">House</option>
+                        <option value="office">Office</option>
+                        <option value="land">Land</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="image">Property Image URL</label>
+                    <input type="file" id="image" name="image" accept="image/*" required>
+                </div>
+
+                <button type="submit" class="btn">Add Property</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

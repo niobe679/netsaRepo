@@ -29,3 +29,186 @@ body {
   footer a:hover {
     color: #ccc;
   }  
+  .navbtn{
+    background-color: #037a78;
+    border-radius: 25px;
+    border: solid 1px;
+    border-color: white;
+     
+  }
+  .navfont{
+    font-weight: bold;
+    color: white;
+  }
+  .nav2font{
+    font-weight: bold;
+    color: white;
+  }
+  .navfont:hover{
+    background: linear-gradient(to top, #268a8a,  #1a6d6d);
+    color: black;
+    font-weight: bold;
+  }
+
+  .ccontainer {
+    width: 400px;
+    background: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    
+}
+
+h2 {
+    margin-bottom: 20px;
+    font-size: 24px;
+    color: #333;
+}
+
+/* Tabs for Login and Signup */
+.tab-buttons {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+}
+
+.tab-buttons button {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: #444;
+    background: #f0f0f0;
+    transition: background 0.3s, color 0.3s;
+}
+
+.tab-buttons .active {
+    background: linear-gradient(to right, #4A90E2, #357ABD);
+    color: white;
+    font-weight: bold;
+}
+
+/* Input Fields */
+.input-group {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.input-group label {
+    display: block;
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    outline: none;
+}
+
+.forgot-password {
+    display: block;
+    text-align: right;
+    font-size: 12px;
+    margin-bottom: 20px;
+    color: #357ABD;
+    text-decoration: none;
+}
+
+/* Login Button */
+.btn-login {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    background: linear-gradient(to right, #4A90E2, #357ABD);
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.btn-login:hover {
+    background: linear-gradient(to right, #357ABD, #4A90E2);
+}
+
+/* Signup Text */
+.signup-text {
+    margin-top: 20px;
+    font-size: 14px;
+    color: #333;
+}
+
+.signup-text a {
+    color: #357ABD;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.signup-text a:hover {
+    text-decoration: underline;
+}
+/* Google Signup Button */
+.google-signup {
+display: flex;
+align-items: center;
+justify-content: center;
+width: 100%;
+padding: 10px 15px;
+margin-bottom: 15px;
+background-color: white;
+border: 1px solid #ddd;
+border-radius: 4px;
+font-size: 16px;
+cursor: pointer;
+transition: background-color 0.3s;
+}
+
+.google-signup img {
+width: 20px;
+margin-right: 10px;
+}
+
+.google-signup:hover {
+background-color: #f4f4f4;
+}
+.srchbar{
+  width: 50%; 
+  margin-left: 30%;
+  margin-top: 17%;
+  border-radius: 15px;
+}
+.srchfltr{
+  margin-left: 20%;
+  margin-top: 1%;
+  
+}
+.srchfltr input{
+  border-radius: 15px;
+  background-color: #cde2e2;
+  
+}
+.srchfltr2{
+  margin-left: 47%;
+  margin-top: 1%;
+}
+.srchfltr select{
+  border-radius: 5px;
+  background-color: #cde2e2;
+}
+.srchfltr2 select{
+  border-radius: 5px;
+  background-color: #cde2e2;
+}
+.srchfltr2 button{
+  border-radius: 5px;
+  width: 55px;
+  background-color: #cde2e2;
+}

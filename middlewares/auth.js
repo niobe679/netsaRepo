@@ -1,6 +1,7 @@
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
-
+const express = require('express');
+const app = express();
 // Initialize Passport middleware
 app.use(passport.initialize());
 app.use(passport.session());
@@ -37,3 +38,24 @@ app.get(
     res.redirect("/");
   }
 );
+
+const requireAuth = (req, res, next) => {
+  console.log("qq "+req.session.user+" : "+res);
+  if (!req.session.user) {
+      return res.status(401).send("Unauthorized: Please log in");
+  }
+  next();
+};
+
+module.exports = (req, res, next) => {
+  if (!req.session.user) {
+      return res.status(401).send('Unauthorized: Please log in.');
+  }
+  if (req.session.user.role !== 'admin') {
+      return res.status(403).send('Forbidden: Admin access only.');
+  }
+  next();
+};
+
+
+module.exports = requireAuth;

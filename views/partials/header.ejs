@@ -1,30 +1,41 @@
-<header>
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<header style="margin-top: 28px; width: 70%; margin-left: 20%;">
+  <nav class="navbar navbar-expand-lg" style=" background-image: linear-gradient(to top, #4f5f5c , #87a39e); border-radius: 25px; opacity: 80%; background-color:#7c9792 ;" >
     <div class="container">
       <div class="logo">
         <!-- Link to the homepage -->
         <a href="/">
-          <img src="/images/logo.png" alt="Netsa Properties Logo" style="height:30px; width:auto; object-fit:contain; margin-bottom:30%;">
+          <img src="/images/logo2.png" alt="Netsa Properties Logo" style="height:30px; width:auto; object-fit:contain; margin-bottom:30%;">
         </a>
       </div>
-      <a class="navbar-brand" href="#">Netsa Homes</a>
+
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
       
+        <ul class="navbar-nav ms-auto" >
+          <li class="nav-item" style="margin-right: 20px;">
+            <a class="nav-link active navfont" style="color: white;" href="/">Home</a>
+          </li>
+          <li class="nav-item"style="margin-right: 20px;">
+            <a class="nav-link navfont" style="color: white;" href="/api/properties">Properties</a>
+          </li>
+          <li class="nav-item"style="margin-right: 20px;">
+            <a class="nav-link navfont" style="color: white;" href="#">Rentals</a>
+          </li>
+          <li class="nav-item"style="margin-right: 20px;">
+            <a class="nav-link navfont" style="color: white;" href="#">About</a>
+          </li>
+          <li class="nav-item"style="margin-right: 20px;">
+            <a class="nav-link navfont" style="color: white;" href="#">Blog</a>
+          </li>
+        </ul>
         <ul class="navbar-nav ms-auto">
-          <li class="nav-item">
-            <a class="nav-link active" href="/">Home</a>
+          <li class="nav-item navbtn" style="margin-right: 20px;">
+            <a class="nav-link nav2font"  href="/login">Login</a> <!-- Added Sign Up link -->
           </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">About Us</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">Contact Us</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/signup">Sign Up</a> <!-- Added Sign Up link -->
+          <li class="nav-item navbtn" style="margin-right: 20px;">
+            <a class="nav-link nav2font"   href="/signup">Sign Up</a> <!-- Added Sign Up link -->
           </li>
         </ul>
       </div>

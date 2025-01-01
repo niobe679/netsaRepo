@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .properties-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+        .property-card {
+            width: 300px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease;
+        }
+        .property-card:hover {
+            transform: translateY(-5px);
+        }
+        .property-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        .property-details {
+            padding: 16px;
+        }
+        .property-details h3 {
+            margin: 0;
+            margin-bottom: 8px;
+            font-size: 20px;
+            color: #333;
+        }
+        .property-details p {
+            margin: 4px 0;
+            font-size: 14px;
+            color: #555;
+        }
+        .no-properties {
+            text-align: center;
+            font-size: 18px;
+            color: #666;
+        }
+         body {
+        display: flex;
+        margin: 0;
+        font-family: Arial, sans-serif;
+    }
+    nav {
+        width: 250px; /* Set a comfortable width */
+        background-color: #333; /* Dark background for the navbar */
+        color: #fff;
+        height: 100vh; /* Full height of the viewport */
+        padding: 20px;
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    }
+    nav ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+    }
+    nav ul li {
+        margin: 20px 0;
+    }
+    nav ul li a {
+        text-decoration: none;
+        color: #fff;
+        font-size: 16px;
+        display: block;
+        padding: 10px 15px;
+        border-radius: 4px;
+        transition: background-color 0.3s;
+    }
+    nav ul li a:hover {
+        background-color: #575757;
+    }
+    .content {
+        flex: 1; /* Allow the content to fill the remaining space */
+        padding: 20px;
+    }
+        
+    </style>
+     <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+    <nav class="sidebar">
+        <h2>Admin Panel</h2>
+        <ul>
+            <li><a href="/admin/dashboard">Dashboard</a></li>
+            <li><a href="/admin/properties" class="active">Manage Properties</a></li>
+            <li><a href="/admin/users">Manage Users</a></li>
+            <li><a href="/logout">Logout</a></li>
+        </ul>
+    </nav>
+    <dov class="content">
+        
+    <h3>Properties List</h3>
+    <a href="/admin/properties/add" class="btn">Add New Property</a>
+    <div class="properties-container">
+        <% if (properties.length > 0) { %>
+            <% properties.forEach(property => { %>
+                <div class="property-card">
+                    <img 
+                        src="<%= property.imageUrl %>" 
+                        alt="<%= property.name %>" 
+                        class="property-image"
+                    >
+                    <div class="property-details">
+                        <h3><%= property.name %></h3>
+                        <p>Price: $<%= property.price %></p>
+                        <p>Location: <%= property.location %></p>
+                        <p>Bedrooms: <%= property.bedrooms %></p>
+                        <p>Square Feet: <%= property.squarefeet %> sqft</p>
+                        <p>Type: <%= property.type %></p>
+                        <div class="action-buttons">
+                            <button class="delete" onclick="deleteProperty('<%= property._id %>')">Edit</button>
+                            <button class="delete" onclick="deleteProperty('<%= property._id %>')">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            <% }); %>
+        <% } else { %>
+            <p class="no-properties">No properties found.</p>
+        <% } %>
+    </div>
+    </dov>
+    <script>
+        function editProperty(id) {
+            // Populate modal with property data and show it
+            const property = properties.find(p => p._id === id);
+            document.getElementById('editPropertyId').value = property._id;
+            document.getElementById('editName').value = property.name;
+            document.getElementById('editPrice').value = property.price;
+            document.getElementById('editLocation').value = property.location;
+            document.getElementById('editBedrooms').value = property.bedrooms;
+            document.getElementById('editSquareFeet').value = property.squarefeet;
+            document.getElementById('editType').value = property.type;
+            document.getElementById('editModal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('editModal').classList.remove('show');
+        }
+
+        document.getElementById('editForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('editPropertyId').value;
+            const updatedData = {
+                name: document.getElementById('editName').value,
+                price: document.getElementById('editPrice').value,
+                location: document.getElementById('editLocation').value,
+                bedrooms: document.getElementById('editBedrooms').value,
+                squarefeet: document.getElementById('editSquareFeet').value,
+                type: document.getElementById('editType').value
+            };
+            const response = await fetch(`/admin/properties/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updatedData)
+            });
+            if (response.ok) {
+                location.reload();
+            } else {
+                alert('Failed to update property.');
+            }
+        });
+
+        function deleteProperty(id) {
+            if (confirm('Are you sure you want to delete this property?')) {
+                fetch(`/admin/properties/${id}`, { method: 'DELETE' })
+                    .then(response => {
+                        if (response.ok) {
+                            location.reload();
+                        } else {
+                            alert('Failed to delete property.');
+                        }
+                    });
+            }
+        }
+    </script>
+</body>
+</html>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%= title %></title>
+  
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/css/custom.css">
@@ -72,18 +72,19 @@
             <label for="password">Password</label>
             <input type="password" name="password" placeholder="Enter your password">
         </div>
-        <a href="#" class="forgot-password">Forgot password?</a>
+        <!-- <a href="#" class="forgot-password">Forgot password?</a> -->
         <button class="btn-login" type="submit">Login</button>
-        <div class="signup-text">
+        <!-- <div class="signup-text">
             Create an account <a href="/signup">Signup now</a>
-        </div>
+        </div> -->
             <!-- Google Signup Button -->
+             <hr>
       <button class="google-signup">
         <img src="/images/google-logo.png" alt="Google Logo" style="height:22px; width:auto; object-fit:contain; ">
         Continue with Google
       </button>
 
-      <hr>
+      
     </div>
 </div>
 </form>
@@ -99,7 +100,7 @@
     const formData = new FormData(e.target);
     const data = Object.fromEntries(formData.entries());
 
-    const response = await fetch('/api/auth/login', {
+    const response = await fetch('/admin/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -107,7 +108,7 @@
     });
     const result = await response.text();
     if (response.ok) {
-        window.location.href = "/api/auth/about";
+        window.location.href = "/admin/dashboard";
         console.log("Logged in succesfully"); // Redirect to the dashboard
     } else {
         // Handle error
