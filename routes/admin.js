@@ -52,7 +52,7 @@ router.get('/properties', isAdmin, async (req, res) => {
 });
 
 router.get('/addproperties', isAdmin, (req, res) => {
-    res.render('admin/addProperties');
+    res.render('admin/addproperties');
 });
 
 router.post('/addproperties', isAdmin, upload.single('image'), async (req, res) => {
