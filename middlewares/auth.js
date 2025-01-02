@@ -42,7 +42,7 @@ app.get(
 const requireAuth = (req, res, next) => {
   console.log("qq "+req.session.user+" : "+res);
   if (!req.session.user) {
-      return res.status(401).send("Unauthorized: Please log in");
+      return res.redirect("/login");//.send("Unauthorized: Please log in");
   }
   next();
 };
