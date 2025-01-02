@@ -25,7 +25,10 @@
     .ontainer {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
+    height: auto;
     
+    max-height: 500px; /* Adjust the height as needed */
+            overflow-y: auto; /* Enable vertical scrolling */
 }
     .properties-container {
             display: flex;
@@ -40,6 +43,8 @@
             overflow: hidden;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             transition: transform 0.2s ease;
+            background-color: whitesmoke;
+            
         }
         .property-card:hover {
             transform: translateY(-5px);
@@ -90,22 +95,58 @@
 <body style="background:linear-gradient(to bottom,  #014543,  #26b4b2);;">
   <!-- Header -->
   <!-- Hero Section -->
-  <div class="main-section" >
-    <!-- Smaller Overlay Image -->
-  <div style="display: block; width: 100%;">
-    <%- include('partials/header') %>
-    <div>
-      <%- include('partials/searchbar') %>
+    <div class="main-section" >
+      <!-- Smaller Overlay Image -->
+      <div style="display: block; width: 100%;">
+        <%- include('partials/header') %>
+        <div>
+          <%- include('partials/searchbar') %>
+        </div>
+        <!-- <h2 id="restitle" class="results-title" ">Search Results</h2> -->
+        <div id="results-container" class="ontainer"></div>
+      </div>
+      
     </div>
-  </div>
-    
-  </div>
   
   </div>
-  <section id="resSection" class="py-5 bg-light text-center" >
-  <!-- Results Container -->
-  <div id="results-container" class="ontainer"></div>
 
+
+  <!-- Property Listings -->
+  <section class="py-5">
+    <div class="container">
+      <h2 class="mb-4">Available Properties</h2>
+      <div class="row">
+        <% properties.forEach(property => { %>
+          <div class="col-md-4 mb-4">
+            <div class="card shadow-sm">
+              <img src="<%= property.image %>" class="card-img-top" alt="<%= property.name %>">
+              <div class="card-body">
+                <h5 class="card-title"><%= property.name %></h5>
+                <p class="card-text">Location: <%= property.location %></p>
+                <p class="fw-bold text-primary">Price: <%= property.price %></p>
+              </div>
+            </div>
+          </div>
+        <% }) %> 
+      </div>
+    </div>
+  </section>
+  <!-- our solutions -->
+
+
+   <section class="py-5">
+    <div class="container">
+
+    </div>
+   </section>
+   <!-- Rentals -->
+  <!-- About us -->
+   <!-- contact us -->
+  <!-- Footer -->
+  <%- include('partials/footer') %>
+
+  <!-- Bootstrap JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     // Fetch search results and populate the page
     document.getElementById('searchform').addEventListener('submit', async function (event) {
@@ -142,6 +183,10 @@
         const resultsContainer = document.getElementById('results-container');
         const section = document.getElementById("resSection");
         resultsContainer.innerHTML = ''; // Clear previous results
+        
+        const containnres =  document.getElementById('restitle');
+          containnres.style.display = 'block';
+          
         // const container = document.getElementById('ontainer');
         // container.style.height = 'auto'; 
         // section.appendChild =`<h3>Search Results</h3>`;
@@ -171,6 +216,7 @@
             `;
             resultsContainer.innerHTML += card;
           });
+
         } else {
           resultsContainer.innerHTML = '<p>No results found for your search.</p>';
         }
@@ -179,43 +225,5 @@
       }
     });
   </script>
-  </section>
-
-  <!-- Property Listings -->
-  <section class="py-5">
-    <div class="container">
-      <h2 class="mb-4">Available Properties</h2>
-      <div class="row">
-        <% properties.forEach(property => { %>
-          <div class="col-md-4 mb-4">
-            <div class="card shadow-sm">
-              <img src="<%= property.image %>" class="card-img-top" alt="<%= property.name %>">
-              <div class="card-body">
-                <h5 class="card-title"><%= property.name %></h5>
-                <p class="card-text">Location: <%= property.location %></p>
-                <p class="fw-bold text-primary">Price: <%= property.price %></p>
-              </div>
-            </div>
-          </div>
-        <% }) %> 
-      </div>
-    </div>
-  </section>
-  <!-- our solutions -->
-
-   <!-- Properties -->
-   <section class="py-5">
-    <div class="container">
-
-    </div>
-   </section>
-   <!-- Rentals -->
-  <!-- About us -->
-   <!-- contact us -->
-  <!-- Footer -->
-  <%- include('partials/footer') %>
-
-  <!-- Bootstrap JS Bundle -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
