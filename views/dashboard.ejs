@@ -21,14 +21,16 @@
       margin-left: 45px;
       margin-right: 45px;
       background-size: cover;
+      flex-wrap: wrap;
     }
     .ontainer {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(5, 1fr);
     height: auto;
     
     max-height: 500px; /* Adjust the height as needed */
             overflow-y: auto; /* Enable vertical scrolling */
+    background-color: #b7ddcfbb;
 }
     .properties-container {
             display: flex;
@@ -37,7 +39,7 @@
             justify-content: center;
         }
         .property-card {
-            width: 300px;
+            width: 230px;
             border: 1px solid #ccc;
             border-radius: 8px;
             overflow: hidden;
@@ -89,13 +91,24 @@
   text-align: center;
   font-size: 16px;
 }
+@media (max-width: 768px) {
+  .property-card {
+    flex: 1 1 calc(50% - 16px); /* 2 cards per row */
+  }
+}
+
+@media (max-width: 480px) {
+  .property-card {
+    flex: 1 1 100%; /* 1 card per row */
+  }
+}
 
   </style>
 </head>
 <body style="background:linear-gradient(to bottom,  #014543,  #26b4b2);;">
   <!-- Header -->
   <!-- Hero Section -->
-    <div class="main-section" >
+  <div class="main-section" >
       <!-- Smaller Overlay Image -->
       <div style="display: block; width: 100%;">
         <%- include('partials/header') %>
@@ -107,8 +120,6 @@
       </div>
       
     </div>
-  
-  </div>
 
 
   <!-- Property Listings -->

@@ -1,4 +1,4 @@
-<input class="srchbar" name="searchbox" type="text" size="80" style="height: 40px;" />
+<input class="srchbar" name="searchbox" type="text" size="80" style="height: 40px;" placeholder="Search by location or buy or rent or Price" />
 <form method="post" id="searchform">
 <!-- Search Bar -->
 <div class="srchfltr">
@@ -12,17 +12,18 @@
     <input id="location" name="location" type="text" placeholder="Location">
     <input id="bedrooms" name="bedrooms" type="number" placeholder="Bedrooms">
     <input id="squarefeet" name="squarefeet" type="number" placeholder="Square Feet">
+    <select id="propertyType" name="propertyType">
+      <option value="">Property Type</option>
+      <option value="apartment">Apartment</option>
+      <option value="house">House</option>
+      <option value="commercial">Commercial</option>
+      <option value="land">Land</option>
+    </select>
+    <button type="submit">Filter</button>
 
   </div>
   <div class="srchfltr2">
-  <select id="propertyType" name="propertyType">
-    <option value="">Property Type</option>
-    <option value="apartment">Apartment</option>
-    <option value="house">House</option>
-    <option value="commercial">Commercial</option>
-    <option value="land">Land</option>
-  </select>
-  <button type="submit">Filter</button>
+
 </div>
 </form>
     <!-- <script>
