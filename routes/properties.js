@@ -33,8 +33,9 @@ router.post('/search', async (req, res) => {
   
       // Filter the properties based on the query and filter
       console.log('Filters:', filters); // Debugging log
-      const results = await Property.find(filters);
-      res.json({ results });
+      const properties = await Property.find(filters);
+      res.render('searchResult',{properties});
+      res.json({ properties });
       // const _results = properties.filter(property => 
       //   property.name.toLowerCase().includes(query.toLowerCase()) &&
       //   (!filter || property.category === filter)
@@ -46,8 +47,47 @@ router.post('/search', async (req, res) => {
       res.status(500).json({ error: 'Internal Server Error' });
     }
 });
+
+router.get('/search', async (req, res) => {
+  console.log('Req:', req.body); // Debugging log
+  const { price, rob, location, bedrooms, squarefeet, type } = req.query;
+    // const query = req.query.q || '';
+    // const filter = req.query.filter || '';
+    // const _price = req.body.price || '';// document.getElementById('price').value;
+    // const _rob = req.body.rob || '';//document.getElementById('rob').value;
+    // const _location = req.body.location || '';//document.getElementById('location').value;
+    // const _bedrooms = req.body.bedrooms || '';//document.getElementById('bedrooms').value;
+    // const _squarefeet = req.body.squarefeet || '';//document.getElementById('squarefeet').value;
+    // const _type = req.body.type || '';//document.getElementById('propertType').value;
+
+    try {
+      // Construct the filters dynamically
+      const filters = {};
+      if (price) filters.price = { $lte: parseInt(price) };
+      if (rob) filters.rob = { $regex: rob, $options: 'i' };;
+      if (location) filters.location = { $regex: location, $options: 'i' }; // Case-insensitive search
+      if (bedrooms) filters.bedrooms = parseInt(bedrooms);
+      if (squarefeet) filters.squarefeet = { $lte: parseInt(squarefeet) };
+      if (type) filters.type = type;
   
-  router.post('/add-property', upload.single('image'), async (req, res) => {
+      // Filter the properties based on the query and filter
+      console.log('Filters:', filters); // Debugging log
+      const properties = await Property.find(filters);
+      res.render('searchResult',{properties});
+      //res.json({ properties });
+      // const _results = properties.filter(property => 
+      //   property.name.toLowerCase().includes(query.toLowerCase()) &&
+      //   (!filter || property.category === filter)
+      // );
+  
+      //res.json({ results }); // Send the results as JSON
+    } catch (error) {
+      console.error('Error fetching search results:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+router.post('/add-property', upload.single('image'), async (req, res) => {
     console.log('Request Body:', req.body);
     try {
       // Upload image to Cloudinary
