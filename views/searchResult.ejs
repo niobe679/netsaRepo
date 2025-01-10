@@ -50,8 +50,8 @@
   overflow: hidden;
   max-width: 500px;
   width: 100%;
-  margin-left: 5%;
-  margin-top: 3%;
+  margin-left: 25%;
+  margin-top: 1%;
 }
 
 .search-input {
@@ -81,19 +81,53 @@
 #main { 
     width: 100%;
     margin: 0 auto;
+    margin-top: 2%;
 }
 #sidebar    {
-    width: 40%;
+    width: auto;
     height: auto;
     float: left;
 }
 
 #page-wrap  {
-    width: 60%;
+    width: 75%;
     background: #ffffff;
     height: auto;
-    margin-left: 200px;
+    margin-left: 100px;
+    float: right;
 }
+.property-details {
+padding: 16px;
+}
+.property-details h3 {
+    margin: 0;
+    margin-bottom: 8px;
+    font-size: 20px;
+    color: #333;
+}
+.property-details p {
+    margin: 4px 0;
+    font-size: 14px;
+    color: #555;
+}
+.filter-button {
+background-color: rgb(255, 255, 255);
+
+}
+
+.filter-button img {
+  height: 10px;
+  width: 10px;
+}
+body {
+      margin: 0;
+      height: auto;
+      background-image: url('/images/just\ for\ export.svg');
+      background-size: cover;
+    }
+    .properties-container{
+      background-color: white;
+    }
   </style>
 </head>
 <body>
@@ -104,56 +138,75 @@
         
 
       </div>
-      <div>
-        <form method="post" id="searchform">
-          <div id="main">
-            <div id="sidebar">
-              <div class="search-bar-container">
+
+
+</section>
+
+<section>
+  <div>
+
+      
+      <div id="main">
+        <form  id="searchform" method="post">
+          <div id="sidebar">
+            <div class="search-bar-container">
             <input
+            id="searchAll"
+            name="searchAll"
               type="text"
-              placeholder="Address, School, City, Zip or Neighborhood"
+              placeholder="Location, Name or Price"
               class="search-input"
             />
-            <button class="search-button">
+            <button class="search-button" type="submit">
               <img src="/images/search-icon.jpg" alt="Search" />
             </button>
-              </div>
-          </div>
-            <!-- Search Bar -->
-            <div id="page-wrap">
-              <div class="srchfltr">
-          
-              <input id="price" name="price" type="text" placeholder="Price">
-              <select id="rob" name="rob">
-                <option value="">Rent or Buy</option>
-                <option value="rent">Rent</option>
-                <option value="buy">Buy</option>
-              </select>
-              <input id="location" name="location" type="text" placeholder="Location">
-              <input id="bedrooms" name="bedrooms" type="number" placeholder="Bedrooms">
-              
-              <button type="submit">Filter</button>
-          
-              </div>
             </div>
-        </div>
-          </form>
+          </div>
+        </form>
+          <!-- Search Bar -->
+        <form id="filterform" method="post"  >
+          <div id="page-wrap" style="background-color: #025e5d;">
+            <div class="srchfltr" style="background-color: #025e5d;">
+        
+            <input id="price" name="price" type="text" placeholder="Price">
+            <select id="rob" name="rob">
+              <option value="">Rent or Buy</option>
+              <option value="rent">Rent</option>
+              <option value="buy">Buy</option>
+            </select>
+            <input id="location" name="location" type="text" placeholder="Location">
+            <input id="bedrooms" name="bedrooms" type="number" placeholder="Bedrooms">
+            
+            <button type="submit" class="filter-button" >
+              <img src="/images/fltr2.png" alt="filter"  />
+              Filter</button>
+        
+            </div>
+          </div>
+        </form>
       </div>
+    
+  </div>
+</section>
+<section class="py-4">
 
 </section>
   <!-- Property Listings -->
-  <section class="py-5">
-    <div class="container">
-      <h2 class="mb-4">Search Results</h2>
-      <div class="row">
+  <section class="py-5"  >
+    <div class="container" >
+      <h2 class="mb-4" style="color: white;">Search Results</h2>
+      <div class="row" id="results-container">
         <% properties.forEach(property => { %>
-          <div class="col-md-4 mb-4">
-            <div class="card shadow-sm">
-              <img src="<%= property.imageUrl %>" class="card-img-top" alt="<%= property.name %>">
-              <div class="card-body">
-                <h5 class="card-title"><%= property.name %></h5>
-                <p class="card-text">Location: <%= property.location %></p>
-                <p class="fw-bold text-primary">Price: <%= property.price %></p>
+          <div class="col-md-3 mb-3" >
+            <div class="properties-container" style=" border-radius: 15px;" >
+              <img style=" border-top-left-radius: 15px; border-top-right-radius: 15px;"  src="<%= property.imageUrl %>" class="card-img-top" alt="<%= property.name %>">
+              <div class="property-details">
+                <h3><%= property.name %></h3>
+                        <p class="fw-bold text-primary" >Price: $<%= property.price %></p>
+                        <p>Location: <%= property.location %></p>
+                        <p>Bedrooms: <%= property.bedrooms %></p>
+                        <p>Square Feet: <%= property.squarefeet %> sqft</p>
+                        <p>Type: <%= property.type %></p>
               </div>
             </div>
           </div>
@@ -168,5 +221,223 @@
 
   <!-- Bootstrap JS Bundle -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Fetch search results and populate the page
+    document.addEventListener('DOMContentLoaded', () => {
+      
+      console.log(">>>>> "+document.getElementById('rob').value);
+      // const container = document.getElementById('ontainer');
+      //const query = document.getElementById('search-query').value;
+      //const filter = document.getElementById('search-filter').value;
+      const filterForm = document.getElementById('filterform');
+      if (filterForm) {
+        filterForm.addEventListener('submit', async function (event) {
+          event.preventDefault(); // Prevent form submission
+      const price = document.getElementById('price').value;
+      const rob = document.getElementById('rob').value;
+      const location = document.getElementById('location').value;
+      const bedrooms = document.getElementById('bedrooms').value;
+      
+      const propertData = {
+        price: price,
+        rob: rob,
+        location: location,
+        bedrooms: bedrooms,
+        searchAll: '',
+        isFilter: true
+      }
+      console.log(propertData.isFilter);
+      try {
+        const response = await fetch('/api/properties/pagesearch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(propertData),
+      });
+        //const _response = await fetch(`/api/search?q=${query}&filter=${filter}`);
+        const data = await response.json();
+        console.log("UI data: "+data.stringify)
+        const resultsContainer = document.getElementById('results-container');
+        const section = document.getElementById("resSection");
+        resultsContainer.innerHTML = ''; // Clear previous results
+        if (data.results.length > 0) {
+          data.results.forEach(result => {
+
+            const card = `
+ 
+             <div class="col-md-3 mb-3" >
+               <div class="properties-container" style=" border-radius: 15px;" >
+                    <img 
+                        src="${result.imageUrl}" 
+                        alt="${result.name}" 
+                        class="card-img-top"
+                        style=" border-top-left-radius: 15px; border-top-right-radius: 15px;" 
+                    >
+                    <div class="property-details">
+                        <h3>${result.name}</h3>
+                        <p>Price: ${result.price}</p>
+                        <p>Location: ${ result.location}</p>
+                        <p>Bedrooms: ${ result.bedrooms}</p>
+                        <p>Square Feet: ${result.squarefeet} sqft</p>
+                        <p>Type: ${ result.type}</p>
+ 
+                    </div>
+                </div>
+              </div>
+            `;
+            resultsContainer.innerHTML += card;
+          });
+ 
+        } else {
+          resultsContainer.innerHTML = '<p>No results found for your search.</p>';
+        }
+
+      } catch (error) {
+        console.error('Error fetching search results:', error);
+      }
+    });
+  }
+    });
+  
+    document.addEventListener('DOMContentLoaded', () => {
+      
+      console.log(">> "+document.getElementById('searchAll').value);
+      // const container = document.getElementById('ontainer');
+      //const query = document.getElementById('search-query').value;
+      //const filter = document.getElementById('search-filter').value;
+
+      const searchForm = document.getElementById('searchform');
+      if (searchForm) {
+        searchForm.addEventListener('submit', async function (event) {
+          event.preventDefault(); // Prevent form submission
+      const searchAll = document.getElementById('searchAll').value;
+      
+      const propertData = {
+        price: '',
+        rob: '',
+        location: '',
+        bedrooms: '',
+        searchAll: searchAll,
+        isFilter: false
+      }
+      
+      try {
+        const response = await fetch('/api/properties/pagesearch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(propertData),
+    });
+        //const _response = await fetch(`/api/search?q=${query}&filter=${filter}`);
+        const data = await response.json();
+        console.log("UI data: "+data.stringify)
+        const resultsContainer = document.getElementById('results-container');
+        const section = document.getElementById("resSection");
+        resultsContainer.innerHTML = ''; // Clear previous results
+        if (data.results.length > 0) {
+          data.results.forEach(result => {
+
+            const card = `
+ 
+             <div class="col-md-3 mb-3">
+               <div class="properties-container" style=" border-radius: 15px;" >
+                    <img 
+                        src="${result.imageUrl}" 
+                        alt="${result.name}" 
+                        class="card-img-top"
+                        style=" border-top-left-radius: 15px; border-top-right-radius: 15px;" 
+                    >
+                    <div class="property-details">
+                        <h3>${result.name}</h3>
+                        <p>Price: ${result.price}</p>
+                        <p>Location: ${ result.location}</p>
+                        <p>Bedrooms: ${ result.bedrooms}</p>
+                        <p>Square Feet: ${result.squarefeet} sqft</p>
+                        <p>Type: ${ result.type}</p>
+ 
+                    </div>
+                </div>
+              </div>
+            `;
+            resultsContainer.innerHTML += card;
+          });
+ 
+        } else {
+          resultsContainer.innerHTML = '<p>No results found for your search.</p>';
+        }
+
+      } catch (error) {
+        console.error('Error fetching search results:', error);
+      }
+    });
+  }
+    });
+  
+  </script>
+  
+  <!-- <script>
+    // Fetch search results and populate the page
+    document.addEventListener('DOMContentLoaded', () => {
+      event.preventDefault(); // Prevent form submission
+      console.log(">>>>>> "+document.getElementById('rob').value);
+      // const container = document.getElementById('ontainer');
+      //const query = document.getElementById('search-query').value;
+      //const filter = document.getElementById('search-filter').value;
+      const searchForm = document.getElementById('searchform');
+      if (searchForm) {
+        searchForm.addEventListener('submit', async function (event) {
+      const price = document.getElementById('price').value;
+      const rob = document.getElementById('rob').value;
+      const location = document.getElementById('location').value;
+      const bedrooms = document.getElementById('bedrooms').value;
+
+      
+      const propertData = {
+        price: price,
+        rob: rob,
+        location: location,
+        bedrooms: bedrooms,
+        isFilter: new Boolean(true)
+      }
+      console.log(propertData.isFilter);
+        try {
+          const queryString = new URLSearchParams(propertData).toString();
+          window.location.href = `/api/properties/search?${queryString}`;
+    
+          }
+        catch (error) {
+          console.error('Error fetching search results:', error);
+          }
+        });
+      }
+    });
+  
+    document.addEventListener('DOMContentLoaded', () => {
+      event.preventDefault(); // Prevent form submission
+      console.log(">>{{{}}} "+document.getElementById('searchAll').value);
+      // const container = document.getElementById('ontainer');
+      //const query = document.getElementById('search-query').value;
+      //const filter = document.getElementById('search-filter').value;
+      const filterForm = document.getElementById('filterform');
+      if (filterForm) {
+        filterForm.addEventListener('submit', async function (event) {
+      const searchAll = document.getElementById('searchAll').value;
+      
+      const propertData = {
+        searchAll: searchAll,
+        isFilter: new Boolean(false)
+      }
+      
+      try {
+        const queryString = new URLSearchParams(propertData).toString();
+        window.location.href = `/api/properties/search?${queryString}`;
+  
+        }
+      catch (error) {
+        console.error('Error fetching search results:', error);
+        }
+      });
+    }
+    });
+  
+  </script> -->
 </body>
 </html>

@@ -61,7 +61,12 @@ app.use(express.static(path.join(__dirname, '..', 'public')));
 const properties = [
   { id: 1, name: 'Modern Apartment', location: 'Addis Ababa', price: '$150,000', image: '/images/property2.jpg' },
   { id: 2, name: 'Cozy Villa', location: 'Bishoftu', price: '$220,000', image: '/images/property3.jpg' },
-  { id: 3, name: 'Office Space', location: 'Jemo, Addis Ababa', price: '$120,000', image: '/images/property1.jpg' }
+  { id: 3, name: 'Office Space', location: 'Jemo, Addis Ababa', price: '$120,000', image: '/images/property1.jpg' },
+  { id: 4, name: 'Modern Apartment', location: 'Addis Ababa', price: '$150,000', image: '/images/property2.jpg' },
+  { id: 5, name: 'Cozy Villa', location: 'Bishoftu', price: '$220,000', image: '/images/property3.jpg' },
+  { id: 6, name: 'Office Space', location: 'Jemo, Addis Ababa', price: '$120,000', image: '/images/property1.jpg' },
+  { id: 7, name: 'Cozy Villa', location: 'Bishoftu', price: '$220,000', image: '/images/property3.jpg' },
+  { id: 8, name: 'Office Space', location: 'Jemo, Addis Ababa', price: '$120,000', image: '/images/property1.jpg' }
 ];
 // Example routes to render EJS views
 // app.get('/', (req, res) => {

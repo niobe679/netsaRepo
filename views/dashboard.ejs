@@ -30,12 +30,12 @@
   border-radius: 15px;
 }
 .srchfltr{
-  margin-left: 10%;
+  margin-left: 14%;
   margin-top: 1%;
   
 }
 .srchfltr input{
-  border-radius: 15px;
+  border-radius: 10px;
   background-color: #ffffff;
   
 }
@@ -181,7 +181,7 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   overflow: hidden;
   max-width: 500px;
-  width: 100%;
+  width: auto;
 }
 
 .search-input {
@@ -207,9 +207,25 @@
   width: 16px;
   filter: invert(100%);
 }
+
+.filter-button {
+  background-color: rgb(255, 255, 255);
+  
+}
+
+.filter-button img {
+  height: 10px;
+  width: 10px;
+}
+body {
+      margin: 0;
+      height: auto;
+      background-image: url('/images/just\ for\ export.svg');
+      background-size: cover;
+    }
   </style>
 </head>
-<body style="background:linear-gradient(to bottom,  #014543,  #26b4b2);;">
+<body>
   <!-- Header -->
   <!-- Hero Section -->
   <div class="main-section" >
@@ -217,8 +233,9 @@
       <div style="display: block; width: 100%;">
         <%- include('partials/header') %>
         <div>
-          <%- include('partials/filterbar') %>
           <%- include('partials/searchbar') %>
+          <%- include('partials/filterbar') %>
+
         </div>
         <!-- <h2 id="restitle" class="results-title" ">Search Results</h2> -->
         <div id="results-container" class="ontainer"></div>
@@ -228,12 +245,12 @@
 
 
   <!-- Property Listings -->
-  <section class="py-5">
+  <section class="py-5" style="background-image: linear-gradient(to top, #048e89 , #023635);">
     <div class="container">
-      <h2 class="mb-4">Available Properties</h2>
+      <h2 class="mb-4" style="color: white;">Available Properties</h2>
       <div class="row">
         <% properties.forEach(property => { %>
-          <div class="col-md-4 mb-4">
+          <div class="col-md-3 mb-3">
             <div class="card shadow-sm">
               <img src="<%= property.image %>" class="card-img-top" alt="<%= property.name %>">
               <div class="card-body">
@@ -248,13 +265,51 @@
     </div>
   </section>
   <!-- our solutions -->
-
-
-   <section class="py-5">
+  <!-- Property Listings -->
+  <section class="py-5" style="background-image: linear-gradient(to right, #60987d , #14201a);">
+    <div class="container">
+      <h2 class="mb-4">Available Properties</h2>
+      <div class="row">
+        <% properties.forEach(property => { %>
+          <div class="col-md-3 mb-3">
+            <div class="card shadow-sm">
+              <img src="<%= property.image %>" class="card-img-top" alt="<%= property.name %>">
+              <div class="card-body">
+                <h5 class="card-title"><%= property.name %></h5>
+                <p class="card-text">Location: <%= property.location %></p>
+                <p class="fw-bold text-primary">Price: <%= property.price %></p>
+              </div>
+            </div>
+          </div>
+        <% }) %> 
+      </div>
+    </div>
+  </section>
+  <!-- Property Listings -->
+  <section class="py-5">
+    <div class="container">
+      <h2 class="mb-4">Available Properties</h2>
+      <div class="row">
+        <% properties.forEach(property => { %>
+          <div class="col-md-3 mb-3">
+            <div class="card shadow-sm">
+              <img src="<%= property.image %>" class="card-img-top" alt="<%= property.name %>">
+              <div class="card-body">
+                <h5 class="card-title"><%= property.name %></h5>
+                <p class="card-text">Location: <%= property.location %></p>
+                <p class="fw-bold text-primary">Price: <%= property.price %></p>
+              </div>
+            </div>
+          </div>
+        <% }) %> 
+      </div>
+    </div>
+  </section>
+  <section class="py-5">
     <div class="container">
 
     </div>
-   </section>
+  </section>
    <!-- Rentals -->
   <!-- About us -->
    <!-- contact us -->
@@ -284,65 +339,43 @@
         location: location,
         bedrooms: bedrooms,
         squarefeet: squarefeet,
-        type: type
+        type: type,
+        isFilter: new Boolean(true)
+      }
+      console.log(propertData.isFilter);
+        try {
+          const queryString = new URLSearchParams(propertData).toString();
+          window.location.href = `/api/properties/search?${queryString}`;
+    
+          }
+        catch (error) {
+          console.error('Error fetching search results:', error);
+          }
+    });
+  
+    document.getElementById('filterform').addEventListener('submit', async function (event) {
+      event.preventDefault(); // Prevent form submission
+      console.log(">> "+document.getElementById('searchAll').value);
+      // const container = document.getElementById('ontainer');
+      //const query = document.getElementById('search-query').value;
+      //const filter = document.getElementById('search-filter').value;
+      const searchAll = document.getElementById('searchAll').value;
+      
+      const propertData = {
+        searchAll: searchAll,
+        isFilter: new Boolean(false)
       }
       
       try {
         const queryString = new URLSearchParams(propertData).toString();
-window.location.href = `/api/properties/search?${queryString}`;
-    //     const response = await fetch('/api/properties/search', {
-    //     method: 'POST',
-    //     headers: { 'Content-Type': 'application/json' },
-    //     body: JSON.stringify(propertData),
-    // });
-    //     //const _response = await fetch(`/api/search?q=${query}&filter=${filter}`);
-    //     const data = await response.json();
-    //     console.log("UI data: "+data.stringify)
-    //     const resultsContainer = document.getElementById('results-container');
-    //     const section = document.getElementById("resSection");
-    //     resultsContainer.innerHTML = ''; // Clear previous results
-        
-    //     // const containnres =  document.getElementById('restitle');
-    //     //   containnres.style.display = 'block';
-          
-    //     // const container = document.getElementById('ontainer');
-    //     // container.style.height = 'auto'; 
-    //     // section.appendChild =`<h3>Search Results</h3>`;
-    //     if (data.results.length > 0) {
-    //       window.location.href = '/searchResult';
-    //       // data.results.forEach(result => {
-        
-    //       //   const card = `
-            
-    //       //    <div class="grid-container">
-    //       //      <div class="property-card">
-    //       //           <img 
-    //       //               src="${result.imageUrl}" 
-    //       //               alt="${result.name}" 
-    //       //               class="property-image"
-    //       //           >
-    //       //           <div class="property-details">
-    //       //               <h3>${result.name}</h3>
-    //       //               <p>Price: ${result.price}</p>
-    //       //               <p>Location: ${ result.location}</p>
-    //       //               <p>Bedrooms: ${ result.bedrooms}</p>
-    //       //               <p>Square Feet: ${result.squarefeet} sqft</p>
-    //       //               <p>Type: ${ result.type}</p>
-                        
-    //       //           </div>
-    //       //       </div>
-    //       //     </div>
-    //       //   `;
-    //       //   resultsContainer.innerHTML += card;
-    //       // });
-
-    //     } else {
-    //       resultsContainer.innerHTML = '<p>No results found for your search.</p>';
-    //     }
-      } catch (error) {
+        window.location.href = `/api/properties/search?${queryString}`;
+  
+        }
+      catch (error) {
         console.error('Error fetching search results:', error);
-      }
+        }
     });
+  
   </script>
 </body>
 </html>
