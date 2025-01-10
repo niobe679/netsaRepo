@@ -247,7 +247,7 @@ router.post('/add-property', upload.single('image'), async (req, res) => {
       res.status(500).json({ error: 'Internal Server Error' });
     }
   });
-  router.get('/', async(req, res) => {
+  router.get('/home', async(req, res) => {
     try {
       const properties = await Property.find(); // Fetch all properties
       res.render('Properties', { properties});
