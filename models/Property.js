@@ -8,7 +8,12 @@ const propertySchema = new mongoose.Schema({
   squarefeet: Number,
   type: String,
   name: String,
-  imageUrl: String // Cloudinary URL
+  imageUrl: [
+    {
+      url: String,
+      public_id: String, // This must be stored
+    },
+  ], // Array of image URLs
 });
 
 const Property = mongoose.model('Property', propertySchema);

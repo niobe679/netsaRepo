@@ -2,6 +2,7 @@
 const cloudinary = require('cloudinary').v2;
 const multer = require('multer');
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const Property = require('../../models/Property');
 // (async function() {
 
 //     // Configuration
@@ -44,6 +45,7 @@ const { CloudinaryStorage } = require('multer-storage-cloudinary');
 //     console.log(autoCropUrl);    
 // })();
 
+
 // Configure Multer Storage for Cloudinary
     // Configuration
     cloudinary.config({ 
@@ -61,6 +63,35 @@ const storage = new CloudinaryStorage({
     },
 });
 
+
+async function deleteProperty(req, res) {
+    console.log("check "+ req.params);
+    try {
+        const { id } = req.params; // Property ID from the request parameters
+  
+        // Find the property by ID
+        const property = await Property.findById(id);
+
+      if (!property) {
+        return res.status(404).json({ error: 'Property not found' });
+      }
+  
+      // Delete images from Cloudinary
+      const imageDeletionPromises = property.imageUrl.map((image) =>
+        cloudinary.uploader.destroy(image.public_id)
+      );
+      await Promise.all(imageDeletionPromises);
+  
+      // Delete the property from the database
+      await Property.findByIdAndDelete(id);
+
+  
+      res.status(200).json({ message: 'Property and associated images deleted successfully' });
+    } catch (error) {
+      console.error('Error deleting property:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
 const upload = multer({ storage });
 
-module.exports = { cloudinary, upload };
+module.exports = { cloudinary, upload, deleteProperty };

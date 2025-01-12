@@ -12,8 +12,124 @@
       margin: 0;
       height: auto;
       background-image: url('/images/just\ for\ export.svg');
-      background-size: cover;
+      background-size: fill;
     }
+    .modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0.3s, opacity 0.3s;
+  overflow-y: scroll;
+}
+
+.modal-content {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 80%;
+  max-width: 1010px;
+  height: 100%;
+  text-align: center;
+  overflow-y: scroll;
+}
+
+.modal img {
+  max-width: 100%;
+  height: auto;
+  margin-top: 20px;
+}
+
+.hidden {
+  visibility: hidden;
+  opacity: 0;
+}
+
+.modal.active {
+  visibility: visible;
+  opacity: 1;
+}
+/* Popup Card Styles */
+.popup-card {
+    display: none; /* Initially hidden */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    max-width: 600px;
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    text-align: center;
+}
+
+.image-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 10px;
+}
+
+.image-container img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+/* Close Button */
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+/* Trigger Button */
+#showPopupBtn {
+    margin: 20px;
+}
+/* Image Grid Styling */
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.image-grid img {
+  width: auto;
+  height: auto;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+#see-all-btn {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#see-all-btn:hover {
+  background-color: #0056b3;
+}
+
   </style>
 </head>
 <body>
@@ -30,8 +146,8 @@
       <div class="row">
         <% properties.forEach(property => { %>
           <div class="col-md-4 mb-4">
-            <div class="card shadow-sm">
-              <img src="<%= property.imageUrl %>" class="card-img-top" alt="<%= property.name %>">
+            <div class="card shadow-sm" data-id="<%= property._id %>">
+              <img src="<%= property.imageUrl[0] %>" class="card-img-top" alt="<%= property.name %>">
               <div class="card-body">
                 <h5 class="card-title"><%= property.name %></h5>
                 <p class="fw-bold text-primary"  style="font-size: x-large;">Price: $<%= property.price %></p>
@@ -39,6 +155,7 @@
                         <p>Bedrooms: <%= property.bedrooms %></p>
                         <p>Square Feet: <%= property.squarefeet %> sqft</p>
                         <p>Type: <%= property.type %></p>
+                        <button class="view-details">View Details</button>
               </div>
             </div>
           </div>
@@ -47,11 +164,89 @@
       
     </div>
   </section>
-
+  <div id="property-modal" class="modal hidden">
+    <div class="modal-content">
+      <button id="close-modal" class="close" style="width: 50PX; justify-content: right; font-size: large;">&times;</button>
+      <div id="imageContainer" class="image-container"></div>
+    <!-- Image Grid -->
+    <div id="image-grid" class="image-grid">
+      <!-- Images will be dynamically populated here -->
+    </div>
+        <!-- "See All" Button -->
+        <button id="see-all-btn">See All Photos</button>
+      <h2 id="modal-title">Property Name</h2>
+      <p id="modal-price">Price: $500,000</p>
+      <p id="modal-location">Location: City Center</p>
+      <p id="modal-bedrooms">Bedrooms: 3</p>
+      <div id="imageContainer" class="image-container"></div>
+      <h2 id="modal-title">Property Name</h2>
+      <p id="modal-price">Price: $500,000</p>
+      <p id="modal-location">Location: City Center</p>
+      <p id="modal-bedrooms">Bedrooms: 3</p>
+      <div id="imageContainer" class="image-container"></div>
+      <h2 id="modal-title">Property Name</h2>
+      <p id="modal-price">Price: $500,000</p>
+      <p id="modal-location">Location: City Center</p>
+      <p id="modal-bedrooms">Bedrooms: 3</p>
+      </div>
+  </div>
+  
   <!-- Footer -->
   <%- include('partials/footer') %>
 
   <!-- Bootstrap JS Bundle -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+  const modal = document.getElementById('property-modal');
+  const closeModal = document.getElementById('close-modal');
+  const modalTitle = document.getElementById('modal-title');
+  const modalPrice = document.getElementById('modal-price');
+  const modalLocation = document.getElementById('modal-location');
+  const modalBedrooms = document.getElementById('modal-bedrooms');
+  const modalImage = document.getElementById('modal-image');
+  const imageContainer = document.getElementById('image-grid');
+  //const imageGrid = document.querySelector('.image-grid');
+  const seeAllBtn = document.getElementById('see-all-btn');
+  // Add click event to each card's "View Details" button
+  document.querySelectorAll('.view-details').forEach((button) => {
+  button.addEventListener('click', async (event) => {
+    const card = event.target.closest('.card');
+    const propertyId = card.getAttribute('data-id');
+
+    try {
+      const response = await fetch(`/api/properties/data/${propertyId}`);
+      const property = await response.json();
+
+      // Populate modal with fetched data
+      modalTitle.textContent = property.name;
+      modalPrice.textContent = `Price: ${property.price}`;
+      modalLocation.textContent = `Location: ${property.location}`;
+      modalBedrooms.textContent = `Bedrooms: ${property.bedrooms}`;
+      //modalImage.src = property.imageUrl;
+      imageContainer.innerHTML = ''; // Clear previous images
+      property.imageUrl.forEach(_imageUrl => {
+        const imgElement = document.createElement('img');
+        imgElement.src = _imageUrl;
+        imageContainer.appendChild(imgElement);
+    });
+      // Show the modal
+      modal.classList.add('active');
+    } catch (error) {
+      console.error('Error fetching property details:', error);
+    }
+  });
+
+  });
+
+  // Close modal on click of close button
+  closeModal.addEventListener('click', () => {
+    modal.classList.remove('active');
+  });
+
+
+});
+
+  </script>
 </body>
 </html>

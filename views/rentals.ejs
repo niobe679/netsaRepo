@@ -14,6 +14,46 @@
       background-image: url('/images/just\ for\ export.svg');
       background-size: cover;
     }
+    .modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0.3s, opacity 0.3s;
+}
+
+.modal-content {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 80%;
+  max-width: 500px;
+  text-align: center;
+}
+
+.modal img {
+  max-width: 100%;
+  height: auto;
+  margin-top: 20px;
+}
+
+.hidden {
+  visibility: hidden;
+  opacity: 0;
+}
+
+.modal.active {
+  visibility: visible;
+  opacity: 1;
+}
   </style>
 </head>
 <body>
@@ -30,7 +70,7 @@
       <div class="row">
         <% properties.forEach(property => { %>
           <div class="col-md-4 mb-4">
-            <div class="card shadow-sm">
+            <div class="card shadow-sm" data-id="<%= property._id %>">
               <img src="<%= property.imageUrl %>" class="card-img-top" alt="<%= property.name %>">
               <div class="card-body">
                 <h5 class="card-title"><%= property.name %></h5>
@@ -39,6 +79,7 @@
                         <p>Bedrooms: <%= property.bedrooms %></p>
                         <p>Square Feet: <%= property.squarefeet %> sqft</p>
                         <p>Type: <%= property.type %></p>
+                        <button class="view-details">View Details</button>
               </div>
             </div>
           </div>
@@ -47,11 +88,66 @@
       
     </div>
   </section>
-
+  <div id="property-modal" class="modal hidden">
+    <div class="modal-content">
+      <span id="close-modal" class="close">&times;</span>
+      <h2 id="modal-title">Property Name</h2>
+      <p id="modal-price">Price: $500,000</p>
+      <p id="modal-location">Location: City Center</p>
+      <p id="modal-bedrooms">Bedrooms: 3</p>
+      <img id="modal-image" src="imageUrl.jpg" alt="Property Image" />
+    </div>
+  </div>
+  
   <!-- Footer -->
   <%- include('partials/footer') %>
 
   <!-- Bootstrap JS Bundle -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+  const modal = document.getElementById('property-modal');
+  const closeModal = document.getElementById('close-modal');
+  const modalTitle = document.getElementById('modal-title');
+  const modalPrice = document.getElementById('modal-price');
+  const modalLocation = document.getElementById('modal-location');
+  const modalBedrooms = document.getElementById('modal-bedrooms');
+  const modalImage = document.getElementById('modal-image');
+
+  // Add click event to each card's "View Details" button
+  document.querySelectorAll('.view-details').forEach((button) => {
+  button.addEventListener('click', async (event) => {
+    const card = event.target.closest('.card');
+    const propertyId = card.getAttribute('data-id');
+
+    try {
+      const response = await fetch(`/api/properties/data/${propertyId}`);
+      const property = await response.json();
+
+      // Populate modal with fetched data
+      modalTitle.textContent = property.name;
+      modalPrice.textContent = `Price: ${property.price}`;
+      modalLocation.textContent = `Location: ${property.location}`;
+      modalBedrooms.textContent = `Bedrooms: ${property.bedrooms}`;
+      modalImage.src = property.imageUrl;
+
+      // Show the modal
+      modal.classList.add('active');
+    } catch (error) {
+      console.error('Error fetching property details:', error);
+    }
+  });
+
+  });
+
+  // Close modal on click of close button
+  closeModal.addEventListener('click', () => {
+    modal.classList.remove('active');
+  });
+
+
+});
+
+  </script>
 </body>
 </html>

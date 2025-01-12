@@ -5,6 +5,7 @@ const express = require('express');
 const app = express();
 const router = express.Router();
 const Property = require('../models/Property');
+const mongoose = require('mongoose');
 // Multer setup for handling file uploads
 const multer = require('multer');
 
@@ -227,15 +228,37 @@ router.post('/add-property', upload.single('image'), async (req, res) => {
     }
   });
 
-  router.get('/properties', async (req, res) => {
-    try {
-      const properties = await Property.find(); // Fetch all properties
-      res.json(properties);
-    } catch (error) {
-      console.error('Error fetching properties:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
+router.get('/properties', async (req, res) => {
+  try {
+    const properties = await Property.find(); // Fetch all properties
+    res.json(properties);
+  } catch (error) {
+    console.error('Error fetching properties:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+router.get('/data/:id', async (req, res) => {
+  const { id } = req.params;
+  console.log("p "+id)
+  // Validate ObjectId
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ error: 'Invalid property ID' });
+  }
+
+  try {
+    const property = await Property.findById(id); // Fetch property by ID
+    if (!property) {
+      return res.status(404).json({ error: 'Property not found' });
     }
-  });
+    res.json(property);
+  } catch (error) {
+    console.error('Error fetching property:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+  
+
   router.get('/rentals', async (req, res) => {
     try {
       const filters = {};
@@ -247,7 +270,9 @@ router.post('/add-property', upload.single('image'), async (req, res) => {
       res.status(500).json({ error: 'Internal Server Error' });
     }
   });
+
   router.get('/home', async(req, res) => {
+    console.log("home req")
     try {
       const properties = await Property.find(); // Fetch all properties
       res.render('properties', { properties});

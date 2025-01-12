@@ -6,12 +6,12 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const path = require('path');
 const User = require('../models/User');
-const { cloudinary, upload } = require(path.join('../utils/config/cloudinary')); // Import from config
+const { cloudinary, upload, deleteProperty } = require(path.join('../utils/config/cloudinary')); // Import from config
 //const express = require('express');
 const app = express();
 const requireAuth = require('../middlewares/auth');
 const multer = require('multer');
-
+const fs = require('fs/promises'); 
 //const upload = multer({ dest: 'uploads/' }); // Temporary storage
 // Admin Login Page
 router.get('/login', (req, res) => {
@@ -54,18 +54,75 @@ router.get('/properties', isAdmin, async (req, res) => {
 router.get('/addproperties', isAdmin, (req, res) => {
     res.render('admin/addproperties');
 });
+router.post('/addproperties', isAdmin, upload.array('images', 10), async (req, res) => {
+    console.log('Request Body:', req.body); // Debug form data
+    console.log('Request Files:', req.files); // Debug uploaded files
 
-router.post('/addproperties', isAdmin, upload.single('image'), async (req, res) => {
     try {
-        if (!req.file) {
+        if (!req.files || req.files.length === 0) {
+            return res.status(400).send('No image uploaded');
+        }
+
+        // Map over uploaded files to structure image URLs and public IDs
+        const imageUrls = req.files.map((file) => ({
+            url: file.path, // `path` is already set by multer-storage-cloudinary
+            public_id: file.filename, // `filename` is set by multer-storage-cloudinary
+        }));
+
+        // Save property data with image URLs in MongoDB
+        const newProperty = new Property({
+            name: req.body.name,
+            description: req.body.description,
+            category: req.body.category,
+            price: req.body.price,
+            rob: req.body.rob,
+            location: req.body.location,
+            bedrooms: req.body.bedrooms,
+            squarefeet: req.body.squarefeet,
+            type: req.body.type,
+            imageUrl: imageUrls, // Store all uploaded image URLs
+        });
+
+        await newProperty.save();
+        res.redirect('properties');
+    } catch (error) {
+        console.error('Error uploading property:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+router.post('/Nahaddproperties', isAdmin, upload.array('images', 10), async (req, res) => {
+    console.log('Request Body:', req.body); // Check form data
+    console.log('Request Files:', req.files); // Check uploaded files
+    try {
+        if (!req.files) {
             return res.status(400).send('No image uploaded');
         }
         // Upload image to Cloudinary
-        const result = await cloudinary.uploader.upload(req.file.path);
+        //const result = req.file.path;//await cloudinary.uploader.upload(req.file.path);
+
+    // Initialize an array to store Cloudinary URLs
+    const imageUrls = [];
+
+    // Loop through each file and upload it to Cloudinary
+    for (const file of req.files) {
+            try{
+                    const result = await cloudinary.uploader.upload(file.path, {
+                    folder: 'properties', // Save under 'properties' folder in Cloudinary
+                });
+                imageUrls.push({ url: result.secure_url, public_id: result.public_id });
+
+                // Delete the local file after uploading to Cloudinary
+                //await fs.unlink(file.path);
+            }
+            catch(error){
+                console.error(`Error uploading file ${file.originalname}:`, error);
+            }
+    }
         //Ensure the Cloudinary upload was successful and the URL is available
-        if (!result || !result.secure_url) {
-            return res.status(500).send('Error uploading image to Cloudinary');
-        }
+        // if (!result || !result.secure_url) {
+        //     return res.status(500).send('Error uploading image to Cloudinary');
+        // }
         // Save property data with image URL in MongoDB
         const newProperty = new Property({
           name: req.body.name,
@@ -77,7 +134,8 @@ router.post('/addproperties', isAdmin, upload.single('image'), async (req, res) 
           bedrooms: req.body.bedrooms,
           squarefeet: req.body.squarefeet,
           type: req.body.type,
-          imageUrl: result.secure_url // Cloudinary URL
+          imageUrl: imageUrls, // Store all uploaded image URLs
+
         });
     
         await newProperty.save();
@@ -89,7 +147,7 @@ router.post('/addproperties', isAdmin, upload.single('image'), async (req, res) 
       }
 });
 
-router.get('/properties/edit/:id', isAdmin, async (req, res) => {
+router.get('/edit/:id', isAdmin, async (req, res) => {
     const property = await Property.findById(req.params.id);
     res.render('admin/editProperty', { property });
 });
@@ -100,10 +158,11 @@ router.post('/properties/edit/:id', isAdmin, async (req, res) => {
     res.redirect('admin/properties');
 });
 
-router.post('/properties/delete/:id', isAdmin, async (req, res) => {
-    await Property.findByIdAndDelete(req.params.id);
-    res.redirect('admin/properties');
-});
+router.delete('/properties/delete/:id', isAdmin, deleteProperty);
+//  , async (req, res) => {
+//     await Property.findByIdAndDelete(req.params.id);
+//     res.redirect('admin/properties');
+// });
 
 router.post('/search',isAdmin, async (req, res) => 
     {
