@@ -147,7 +147,7 @@
         <% properties.forEach(property => { %>
           <div class="col-md-4 mb-4">
             <div class="card shadow-sm" data-id="<%= property._id %>">
-              <img src="<%= property.imageUrl[0] %>" class="card-img-top" alt="<%= property.name %>">
+              <img src="<%= property.imageUrl[0].url %>" class="card-img-top" alt="<%= property.name %>">
               <div class="card-body">
                 <h5 class="card-title"><%= property.name %></h5>
                 <p class="fw-bold text-primary"  style="font-size: x-large;">Price: $<%= property.price %></p>
@@ -227,7 +227,7 @@
       imageContainer.innerHTML = ''; // Clear previous images
       property.imageUrl.forEach(_imageUrl => {
         const imgElement = document.createElement('img');
-        imgElement.src = _imageUrl;
+        imgElement.src = _imageUrl.url;
         imageContainer.appendChild(imgElement);
     });
       // Show the modal

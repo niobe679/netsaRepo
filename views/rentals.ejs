@@ -71,7 +71,7 @@
         <% properties.forEach(property => { %>
           <div class="col-md-4 mb-4">
             <div class="card shadow-sm" data-id="<%= property._id %>">
-              <img src="<%= property.imageUrl %>" class="card-img-top" alt="<%= property.name %>">
+              <img src="<%= property.imageUrl[0].url %>" class="card-img-top" alt="<%= property.name %>">
               <div class="card-body">
                 <h5 class="card-title"><%= property.name %></h5>
                 <p class="fw-bold text-primary" style="font-size: x-large;">Price: $<%= property.price %></p>
@@ -90,12 +90,17 @@
   </section>
   <div id="property-modal" class="modal hidden">
     <div class="modal-content">
-      <span id="close-modal" class="close">&times;</span>
+        <button id="close-modal" class="close" style="width: 50PX; justify-content: right; font-size: large;">&times;</button>
+        <div id="imageContainer" class="image-container"></div>
+      <!-- Image Grid -->
+      <div id="image-grid" class="image-grid">
+        <!-- Images will be dynamically populated here -->
+      </div>
       <h2 id="modal-title">Property Name</h2>
       <p id="modal-price">Price: $500,000</p>
       <p id="modal-location">Location: City Center</p>
       <p id="modal-bedrooms">Bedrooms: 3</p>
-      <img id="modal-image" src="imageUrl.jpg" alt="Property Image" />
+      <!-- <img id="modal-image" src="imageUrl.jpg" alt="Property Image" /> -->
     </div>
   </div>
   
@@ -113,7 +118,9 @@
   const modalLocation = document.getElementById('modal-location');
   const modalBedrooms = document.getElementById('modal-bedrooms');
   const modalImage = document.getElementById('modal-image');
-
+  const imageContainer = document.getElementById('image-grid');
+  //const imageGrid = document.querySelector('.image-grid');
+  const seeAllBtn = document.getElementById('see-all-btn');
   // Add click event to each card's "View Details" button
   document.querySelectorAll('.view-details').forEach((button) => {
   button.addEventListener('click', async (event) => {
@@ -129,8 +136,13 @@
       modalPrice.textContent = `Price: ${property.price}`;
       modalLocation.textContent = `Location: ${property.location}`;
       modalBedrooms.textContent = `Bedrooms: ${property.bedrooms}`;
-      modalImage.src = property.imageUrl;
-
+      //modalImage.src = property.imageUrl;
+      imageContainer.innerHTML = ''; // Clear previous images
+      property.imageUrl.forEach(_imageUrl => {
+        const imgElement = document.createElement('img');
+        imgElement.src = _imageUrl.url;
+        imageContainer.appendChild(imgElement);
+    });
       // Show the modal
       modal.classList.add('active');
     } catch (error) {
