@@ -108,7 +108,12 @@
         <% properties.forEach(property => { %>
           <div class="col-md-4 mb-4">
             <div class="card shadow-sm" data-id="<%= property._id %>">
-              <img src="<%= property.imageUrl[0].url %>" class="card-img-top" alt="<%= property.name %>">
+              <iframe 
+              id="popup-iframe" 
+              src="https://my.matterport.com/show/?m=roWLLMMmPL8" 
+              frameborder="0" 
+              allowfullscreen
+            ></iframe>
               <div class="card-body">
                 <h5 class="card-title"><%= property.name %></h5>
                 <p class="fw-bold text-primary" style="font-size: x-large;">Price: $<%= property.price %></p>
