@@ -41,4 +41,25 @@
       </div>
     </div>
   </nav>
+  <script>
+        document.addEventListener('DOMContentLoaded', () => {
+      // Get all nav items
+      const navItems = document.querySelectorAll('.nav-item a');
+
+      // Get the current URL path
+      const currentPath = window.location.pathname;
+
+      // Loop through nav items and match the current path
+      navItems.forEach((link) => {
+        // Remove the active class from all links
+        link.classList.remove('active');
+
+        // Add active class if the href matches the current path
+        if (link.getAttribute('href') === currentPath) {
+          link.classList.add('active');
+        }
+      });
+    });
+
+  </script>
 </header>

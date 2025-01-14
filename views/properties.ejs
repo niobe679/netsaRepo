@@ -88,7 +88,7 @@
 }
 
 /* Close Button */
-.close-btn {
+/* .close-btn {
     position: absolute;
     top: 10px;
     right: 10px;
@@ -96,7 +96,7 @@
     border: none;
     font-size: 18px;
     cursor: pointer;
-}
+} */
 
 /* Trigger Button */
 #showPopupBtn {
@@ -128,6 +128,123 @@
 
 #see-all-btn:hover {
   background-color: #0056b3;
+}
+.nav-item a {
+  text-decoration: none;
+ 
+  padding: 10px 20px;
+  border-radius: 5px;
+}
+
+.nav-item a.active {
+  background: linear-gradient(to top, #268a8a,  #1a6d6d);
+  color: white;
+}
+/* Popup Styling */
+.popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0.3s, opacity 0.3s;
+  overflow-y: scroll;
+}
+
+.popup.active {
+  visibility: visible;
+  opacity: 1;
+}
+
+.popup-content {
+  background-color: #025e5d;
+  border-radius: 8px;
+  padding: 20px;
+  width: 90%;
+  max-width: 1010px;
+  text-align: center;
+  position: relative;
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 34px;
+  cursor: pointer;
+  color: white;
+}
+
+.image-viewer {
+  position: relative;
+}
+
+.image-viewer img {
+  width: 100%;
+  max-height: 700px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 10px;
+  border-radius: 50%;
+  z-index: 10;
+}
+
+.arrow.prev {
+  left: 10px;
+}
+
+.arrow.next {
+  right: 10px;
+}
+
+.thumbnail-gallery {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  margin-top: 20px;
+}
+
+.thumbnail-gallery img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.thumbnail-gallery img.selected {
+  border-color: #007bff;
+}
+
+.popup-content h2 {
+  margin-bottom: 10px;
+  font-size: 24px;
+  color: #ffffff;
+}
+
+.popup-content p {
+  margin: 5px 0;
+  font-size: 16px;
+  color: #ffffff;
 }
 
   </style>
@@ -164,31 +281,32 @@
       
     </div>
   </section>
-  <div id="property-modal" class="modal hidden">
-    <div class="modal-content">
-      <button id="close-modal" class="close" style="width: 50PX; justify-content: right; font-size: large;">&times;</button>
-      <div id="imageContainer" class="image-container"></div>
-    <!-- Image Grid -->
-    <div id="image-grid" class="image-grid">
-      <!-- Images will be dynamically populated here -->
-    </div>
-        <!-- "See All" Button -->
-        <button id="see-all-btn">See All Photos</button>
-      <h2 id="modal-title">Property Name</h2>
-      <p id="modal-price">Price: $500,000</p>
-      <p id="modal-location">Location: City Center</p>
-      <p id="modal-bedrooms">Bedrooms: 3</p>
-      <div id="imageContainer" class="image-container"></div>
-      <h2 id="modal-title">Property Name</h2>
-      <p id="modal-price">Price: $500,000</p>
-      <p id="modal-location">Location: City Center</p>
-      <p id="modal-bedrooms">Bedrooms: 3</p>
-      <div id="imageContainer" class="image-container"></div>
-      <h2 id="modal-title">Property Name</h2>
-      <p id="modal-price">Price: $500,000</p>
-      <p id="modal-location">Location: City Center</p>
-      <p id="modal-bedrooms">Bedrooms: 3</p>
+  
+
+  <div id="popup-card" class="popup hidden">
+    <div class="popup-content">
+      <span id="close-modal" class="close-btn">&times;</span>
+      <!-- <button id="close-modal" class="close-btn" >&times;</button> -->
+      <!-- Image Viewer -->
+      <h2 id="modal-title">Property Title</h2>
+      <p id="modal-price">Price: $0</p>
+      <p id="modal-location">Location: Unknown</p>
+      <p id="modal-bedrooms">Bedrooms: 0</p>
+      <p id="modal-squarefeet">Square Feet: 0</p>
+
+      <div class="image-viewer">
+        <button class="arrow prev" id="prev-arrow">&#10094;</button>
+        <img id="popup-image" src="" alt="Selected Image" />
+        <button class="arrow next" id="next-arrow">&#10095;</button>
       </div>
+  
+      <!-- Thumbnail Gallery -->
+      <div id="thumbnail-gallery" class="thumbnail-gallery">
+        <!-- Thumbnails will be dynamically added here -->
+          <!-- Property Details -->
+
+      </div>
+    </div>
   </div>
   
   <!-- Footer -->
@@ -197,56 +315,274 @@
   <!-- Bootstrap JS Bundle -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-  const modal = document.getElementById('property-modal');
-  const closeModal = document.getElementById('close-modal');
+//     document.addEventListener('DOMContentLoaded', () => {
+//   const modal = document.getElementById('property-modal');
+//   const closeModal = document.getElementById('close-modal');
+//   const modalTitle = document.getElementById('modal-title');
+//   const modalPrice = document.getElementById('modal-price');
+//   const modalLocation = document.getElementById('modal-location');
+//   const modalBedrooms = document.getElementById('modal-bedrooms');
+//   const modalImage = document.getElementById('modal-image');
+//   const imageContainer = document.getElementById('image-grid');
+//   //const imageGrid = document.querySelector('.image-grid');
+//   const seeAllBtn = document.getElementById('see-all-btn');
+//   // Add click event to each card's "View Details" button
+//   document.querySelectorAll('.view-details').forEach((button) => {
+//   button.addEventListener('click', async (event) => {
+//     const card = event.target.closest('.card');
+//     const propertyId = card.getAttribute('data-id');
+
+//     try {
+//       const response = await fetch(`/api/properties/data/${propertyId}`);
+//       const property = await response.json();
+
+//       // Populate modal with fetched data
+//       modalTitle.textContent = property.name;
+//       modalPrice.textContent = `Price: ${property.price}`;
+//       modalLocation.textContent = `Location: ${property.location}`;
+//       modalBedrooms.textContent = `Bedrooms: ${property.bedrooms}`;
+//       //modalImage.src = property.imageUrl;
+//       imageContainer.innerHTML = ''; // Clear previous images
+//       property.imageUrl.forEach(_imageUrl => {
+//         const imgElement = document.createElement('img');
+//         imgElement.src = _imageUrl.url;
+//         imageContainer.appendChild(imgElement);
+//     });
+//       // Show the modal
+//       modal.classList.add('active');
+//     } catch (error) {
+//       console.error('Error fetching property details:', error);
+//     }
+//   });
+
+//   });
+
+//   // Close modal on click of close button
+//   closeModal.addEventListener('click', () => {
+//     modal.classList.remove('active');
+//   });
+
+
+// });
+
+
+// document.addEventListener('DOMContentLoaded', () => {
+//   const popup = document.getElementById('popup-card');
+//   const popupImage = document.getElementById('popup-image');
+//   const thumbnailGallery = document.getElementById('thumbnail-gallery');
+//   const closeBtn = document.querySelector('.close-btn');
+//   const prevArrow = document.getElementById('prev-arrow');
+//   const nextArrow = document.getElementById('next-arrow');
+//   const closeModal = document.getElementById('close-modal');
+
+//   // Property details elements
+//   const modalTitle = document.getElementById('modal-title');
+//   const modalPrice = document.getElementById('modal-price');
+//   const modalLocation = document.getElementById('modal-location');
+//   const modalBedrooms = document.getElementById('modal-bedrooms');
+//   const modalSquareFeet = document.getElementById('modal-squarefeet');
+
+//   let images = [];
+//   let currentIndex = 0;
+
+//   // Open the popup card with images
+//   function openPopupCard(imageArray, startIndex) {
+//     images = imageArray; // Set the images array
+//     currentIndex = startIndex; // Set the current index
+
+//         // Populate property details
+//     modalTitle.textContent = property.title;
+//     modalPrice.textContent = `Price: $${property.price}`;
+//     modalLocation.textContent = `Location: ${property.location}`;
+//     modalBedrooms.textContent = `Bedrooms: ${property.bedrooms}`;
+//     modalSquareFeet.textContent = `Square Feet: ${property.squarefeet}`;
+//     console.log("mm ", images);
+//     // Display thumbnails
+//     thumbnailGallery.innerHTML = ''; // Clear existing thumbnails
+//     images[0].forEach((image, index) => {
+//       console.log("ll ", image);
+//       const thumbnail = document.createElement('img');
+//       thumbnail.src = image.url;
+//       thumbnail.alt = `Thumbnail ${index + 1}`;
+//       thumbnail.classList.add('thumbnail');
+//       if (index === startIndex) thumbnail.classList.add('selected');
+
+//       // Add click event to change main image
+//       thumbnail.addEventListener('click', () => {
+//         updateMainImage(index);
+//       });
+
+//       thumbnailGallery.appendChild(thumbnail);
+//     });
+
+//     // Display the first image
+//     updateMainImage(startIndex);
+
+//     // Show the popup
+//     popup.classList.add('active');
+//   }
+
+//   // Update the main image
+//   function updateMainImage(index) {
+//     currentIndex = index;
+//     popupImage.src = images[0][index].url;
+
+//     // Highlight the selected thumbnail
+//     document.querySelectorAll('.thumbnail').forEach((thumb, i) => {
+//       thumb.classList.toggle('selected', i === index);
+//     });
+//   }
+
+//   // Navigate to the previous image
+//   prevArrow.addEventListener('click', () => {
+//     if (currentIndex > 0) {
+//       updateMainImage(currentIndex - 1);
+//     }
+//   });
+
+//   // Navigate to the next image
+//   nextArrow.addEventListener('click', () => {
+//     if (currentIndex < images[0].length - 1) {
+//       updateMainImage(currentIndex + 1);
+//     }
+//   });
+
+//   // Close the popup
+//   // closeBtn.addEventListener('click', () => {
+//   //   console.log("closing");
+//   //   popup.classList.remove('active');
+//   // });
+// //   document.querySelector('.close-btn').addEventListener('click', () => {
+// //   document.getElementById('popup-card').classList.remove('active');
+// // });
+//   // Example usage: Open popup when clicking on a card
+//   document.querySelectorAll('.card').forEach((card) => {
+//     card.addEventListener('click', async () => {
+//       const propertyId = card.getAttribute('data-id');
+//       console.log(propertyId);
+//       const response = await fetch(`/api/properties/data/${propertyId}`);
+//       const property = await response.json();
+//       //   property.imageUrl.forEach(_imageUrl => {
+//       //     const imgElement = document.createElement('img');
+//       //     imgElement.src = _imageUrl.url;
+//       //     imageContainer.appendChild(imgElement);
+//       // });
+//       console.log(property.imageUrl);
+//       const imageArray = [property.imageUrl]; // Replace with the actual image URLs for the card
+//       openPopupCard(imageArray, 0); // Open popup starting with the first image
+//     });
+//   });
+// });
+// document.getElementById('popup-card').addEventListener('click', (event) => {
+//   console.log('Close button clicked'); // Debugging log
+//     document.getElementById('popup-card').classList.remove('active');
+  
+// });
+
+
+document.addEventListener('DOMContentLoaded', () => {
+  const popup = document.getElementById('popup-card');
+  const popupImage = document.getElementById('popup-image');
+  const thumbnailGallery = document.getElementById('thumbnail-gallery');
+  const closeBtn = document.querySelector('.close-btn');
+  const prevArrow = document.getElementById('prev-arrow');
+  const nextArrow = document.getElementById('next-arrow');
+
+  // Property details elements
   const modalTitle = document.getElementById('modal-title');
   const modalPrice = document.getElementById('modal-price');
   const modalLocation = document.getElementById('modal-location');
   const modalBedrooms = document.getElementById('modal-bedrooms');
-  const modalImage = document.getElementById('modal-image');
-  const imageContainer = document.getElementById('image-grid');
-  //const imageGrid = document.querySelector('.image-grid');
-  const seeAllBtn = document.getElementById('see-all-btn');
-  // Add click event to each card's "View Details" button
-  document.querySelectorAll('.view-details').forEach((button) => {
-  button.addEventListener('click', async (event) => {
-    const card = event.target.closest('.card');
-    const propertyId = card.getAttribute('data-id');
+  const modalSquareFeet = document.getElementById('modal-squarefeet');
 
-    try {
-      const response = await fetch(`/api/properties/data/${propertyId}`);
-      const property = await response.json();
+  let images = [];
+  let currentIndex = 0;
 
-      // Populate modal with fetched data
-      modalTitle.textContent = property.name;
-      modalPrice.textContent = `Price: ${property.price}`;
-      modalLocation.textContent = `Location: ${property.location}`;
-      modalBedrooms.textContent = `Bedrooms: ${property.bedrooms}`;
-      //modalImage.src = property.imageUrl;
-      imageContainer.innerHTML = ''; // Clear previous images
-      property.imageUrl.forEach(_imageUrl => {
-        const imgElement = document.createElement('img');
-        imgElement.src = _imageUrl.url;
-        imageContainer.appendChild(imgElement);
+  // Open the popup card with property details and images
+  function openPopupCard(property) {
+    images = property.imageUrl; // Set the images array
+    currentIndex = 0; // Start with the first image
+
+    // Populate property details
+    modalTitle.textContent = property.name;
+    modalPrice.textContent = `Price: $${property.price}`;
+    modalLocation.textContent = `Location: ${property.location}`;
+    modalBedrooms.textContent = `Bedrooms: ${property.bedrooms}`;
+    modalSquareFeet.textContent = `Square Feet: ${property.squarefeet}`;
+    console.log("mm ", property);
+    // Display thumbnails
+    thumbnailGallery.innerHTML = ''; // Clear existing thumbnails
+    images.forEach((image, index) => {
+      console.log("ll ", image);
+      const thumbnail = document.createElement('img');
+      thumbnail.src = image.url;
+      thumbnail.alt = `Thumbnail ${index + 1}`;
+      thumbnail.classList.add('thumbnail');
+      if (index === 0) thumbnail.classList.add('selected');
+
+      // Add click event to change main image
+      thumbnail.addEventListener('click', () => {
+        updateMainImage(index);
+      });
+
+      thumbnailGallery.appendChild(thumbnail);
     });
-      // Show the modal
-      modal.classList.add('active');
-    } catch (error) {
-      console.error('Error fetching property details:', error);
+
+    // Display the first image
+    updateMainImage(0);
+
+    // Show the popup
+    popup.classList.add('active');
+  }
+
+  // Update the main image
+  function updateMainImage(index) {
+    currentIndex = index;
+    popupImage.src = images[index].url;
+
+    // Highlight the selected thumbnail
+    document.querySelectorAll('.thumbnail').forEach((thumb, i) => {
+      thumb.classList.toggle('selected', i === index);
+    });
+  }
+
+  // Navigate to the previous image
+  prevArrow.addEventListener('click', () => {
+    if (currentIndex > 0) {
+      updateMainImage(currentIndex - 1);
     }
   });
 
+  // Navigate to the next image
+  nextArrow.addEventListener('click', () => {
+    if (currentIndex < images.length - 1) {
+      updateMainImage(currentIndex + 1);
+    }
   });
 
-  // Close modal on click of close button
-  closeModal.addEventListener('click', () => {
-    modal.classList.remove('active');
+  // Close the popup
+  closeBtn.addEventListener('click', () => {
+    popup.classList.remove('active');
   });
 
+  // Example usage: Open popup when clicking on a card
+  document.querySelectorAll('.card').forEach((card) => {
+    card.addEventListener('click', async () => {
+      const propertyId = card.getAttribute('data-id');
+      const response = await fetch(`/api/properties/data/${propertyId}`);
+      const property = await response.json();
+      //const _property = 
+      console.log(property);
 
+      openPopupCard(property); // Pass the property object to populate the modal
+    });
+  });
 });
-
-  </script>
+document.getElementById('close-modal').addEventListener('click', (event) => {
+  console.log('Close button clicked'); // Debugging log
+    document.getElementById('popup-card').classList.remove('active');
+  
+});
+</script>
 </body>
 </html>
