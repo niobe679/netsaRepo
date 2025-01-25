@@ -281,6 +281,17 @@ router.get('/data/:id', async (req, res) => {
       res.status(500).json({ error: 'Internal Server Error' });
     }
 });
+router.get('/mobile/home', async (req, res) => {
+  console.log("home req");
+  try {
+    const properties = await Property.find(); // Fetch all properties
+    res.json({ properties }); // Send properties as JSON
+  } catch (error) {
+    console.error('Error fetching properties:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 router.get('/add-property', (req, res) => {
   res.render('AddProperties', { title: 'Properties' });
   
