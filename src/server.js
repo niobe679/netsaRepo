@@ -4,17 +4,48 @@ const path = require('path');
 const dotenv = require('dotenv');
 const bodyParser = require('body-parser');
 const session = require('express-session');
+const csrf = require('csurf');
+const passport = require("passport");
+// Import routes
+const signupRoutes = require(path.join("../routes/signup"));
+const loginRoutes = require(path.join("../routes/login"));
+const authRoutes = require(path.join('../routes/auth'));
+const propertyRoutes = require(path.join('../routes/properties'));
+const adminRoutes = require(path.join('../routes/admin'));
 //const { MongoClient } = require('mongodb');
 const MongoStore = require('connect-mongo');
 require('dotenv').config();
+const cors = require("cors");
 const PORT = process.env.PORT || 5000;
 //dotenv.config();
 const app = express();
 app.use(express.json());
-
+require("../middlewares/passport"); // Load Google OAuth Config
+//Middleware
+// CSRF protection middleware
+const csrfProtection = csrf({ cookie: true });
+// CSRF token parser middleware
+const cookieParser = require('cookie-parser');
+app.use(cookieParser());
+// Initialize Passport
+app.use(passport.initialize());
 // Middleware to parse URL-encoded data
 app.use(express.urlencoded({ extended: true }));  // For form submissions
 //const mongoClient = new MongoClient(process.env.MONGO_URI_Local, { useNewUrlParser: true, useUnifiedTopology: true });
+// ✅ Allow requests from frontend
+app.use(cors({
+  origin: "http://localhost:3000", // Change this to your frontend URL in production
+  credentials: true // Allow cookies & authentication headers
+}));
+
+// ✅ Allow CORS headers for all responses
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "http://localhost:3000");
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.header("Access-Control-Allow-Credentials", "true");
+  next();
+});
 
 app.use(
   session({
@@ -22,7 +53,7 @@ app.use(
       resave: false, // Avoid saving sessions that have not been modified
       saveUninitialized: false, // Don't save uninitialized sessions
       store: MongoStore.create({
-          mongoUrl: process.env.MONGO_URI_Prod, // Use your MongoDB connection string
+          mongoUrl: process.env.MONGO_URI_Local, // Use your MongoDB connection string
           collectionName: 'sessions', // Optional: Customize the collection name
       }),
       cookie: {
@@ -32,18 +63,13 @@ app.use(
       },
   })
 );
-// Import routes
-const signupRoutes = require(path.join("../routes/signup"));
-const loginRoutes = require(path.join("../routes/login"));
-const authRoutes = require(path.join('../routes/auth'));
-const propertyRoutes = require(path.join('../routes/properties'));
-const adminRoutes = require(path.join('../routes/admin'));
+
 app.use('/admin', adminRoutes);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/properties', propertyRoutes);
 
-mongoose.connect(process.env.MONGO_URI_Prod).then(() => console.log("MongoDB connected"))
+mongoose.connect(process.env.MONGO_URI_Local).then(() => console.log("MongoDB connected"))
   .catch((err) => console.log("MongoDB connection error: ", err));
   //console.log("MONGODB_URI_Prod:", process.env.MONGO_URI_Prod);
   //console.log("All Environment Variables:", process.env);

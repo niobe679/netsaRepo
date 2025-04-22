@@ -12,25 +12,58 @@ const app = express();
 const requireAuth = require('../middlewares/auth');
 const multer = require('multer');
 const fs = require('fs/promises'); 
+const { login, test, refresh_token } = require("../controllers/admincontroller");
+const authenticateToken = require("../middlewares/authenticatetoken");
+const authenticateAdmin = require("../middlewares/isAdmin");
 //const upload = multer({ dest: 'uploads/' }); // Temporary storage
 // Admin Login Page
-router.get('/login', (req, res) => {
-    res.render('admin/login', { error: null });
+
+// User Login
+router.post("/main/login", login);
+//user logout
+//router.post("/logout", authenticateToken, logoutUser);
+// access with token
+router.get("/main/test", authenticateAdmin, test);
+// refresh token
+router.post("/main/refresh", refresh_token);
+// Admin dashboard
+router.get('/main/dashboard', isAdmin, (req, res) => {
+    res.render('admin/dashboard', { user: req.session.user });
 });
 
+
+router.get('/login', (req, res) => {
+
+res.render('admin/login', { error: null });
+});
+router.get("/auth/me", (req, res) => {
+    if (!req.session.user) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+    res.json(req.session.user);
+});
 router.post('/login', async (req, res) => {
     const { username, password } = req.body;
     const user = await User.findOne({ username });
-
+    console.log(req.body);
+    try{
     if (!user || user.role !== 'admin' || !(await bcrypt.compare(password, user.password))) {
         console.log("invalid");
-        return res.redirect('/admin/login?error=Invalid credentials.');
+       return res.status(401).json({ success: false, message: "Invalid credentials" });
+
+        //return res.redirect('/admin/login?error=Invalid credentials.');
     }
     else{
         console.log("valid");
     // Admin authenticated
     req.session.user = { id: user._id, role: 'admin' };
-    res.status(201).send("admin logged in");
+
+    return res.json({ success: true, message: "Login successful", token: "your_jwt_token" });
+    //res.status(201).send("admin logged in");
+    }
+    }catch(error){
+        return res.status(500).json({ success: false, message: "Internal Server Error" });
+
     }
 });
 
@@ -153,8 +186,8 @@ router.get('/edit/:id', isAdmin, async (req, res) => {
 });
 
 router.post('/properties/edit/:id', isAdmin, async (req, res) => {
-    const { name, location, price } = req.body;
-    await Property.findByIdAndUpdate(req.params.id, { name, location, price });
+    const { name, location, price, bedrooms, squarefeet, type } = req.body;
+    await Property.findByIdAndUpdate(req.params.id, { name, location, price, bedrooms, squarefeet, type });
     res.redirect('admin/properties');
 });
 

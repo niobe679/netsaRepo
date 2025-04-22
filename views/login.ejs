@@ -78,7 +78,7 @@
             Create an account <a href="/signup">Signup now</a>
         </div>
             <!-- Google Signup Button -->
-      <button class="google-signup">
+      <button class="google-signup" id="google">
         <img src="/images/google-logo.png" alt="Google Logo" style="height:22px; width:auto; object-fit:contain; ">
         Continue with Google
       </button>
@@ -117,6 +117,30 @@
     
 });
 
+    // Function to switch between Login and Signup tabs
+//     document.getElementById('google').addEventListener('submit', async (e) => {
+//     e.preventDefault();
+//     console.log("in function");
+//     const formData = new FormData(e.target);
+//     const data = Object.fromEntries(formData.entries());
+
+//     const response = await fetch('/api/auth/google', {
+//         method: 'GET',
+//         headers: { 'Content-Type': 'application/json' },
+//         credentials: 'include',
+//         body: JSON.stringify(data),
+//     });
+//     const result = await response.text();
+//     if (response.ok) {
+//         window.location.href = "/api/auth/about";
+//         console.log("Logged in succesfully"); // Redirect to the dashboard
+//     } else {
+//         // Handle error
+//         console.error('Error logging in:', err);
+//         alert('An error occurred. Please try again.');
+//     }
+    
+// });
 
 </script>
 </body>
