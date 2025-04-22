@@ -53,7 +53,7 @@ app.use(
       resave: false, // Avoid saving sessions that have not been modified
       saveUninitialized: false, // Don't save uninitialized sessions
       store: MongoStore.create({
-          mongoUrl: process.env.MONGO_URI_Local, // Use your MongoDB connection string
+          mongoUrl: process.env.MONGO_URI_Prod, // Use your MongoDB connection string
           collectionName: 'sessions', // Optional: Customize the collection name
       }),
       cookie: {
@@ -69,7 +69,7 @@ app.use('/admin', adminRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/properties', propertyRoutes);
 
-mongoose.connect(process.env.MONGO_URI_Local).then(() => console.log("MongoDB connected"))
+mongoose.connect(process.env.MONGO_URI_Prod).then(() => console.log("MongoDB connected"))
   .catch((err) => console.log("MongoDB connection error: ", err));
   //console.log("MONGODB_URI_Prod:", process.env.MONGO_URI_Prod);
   //console.log("All Environment Variables:", process.env);
