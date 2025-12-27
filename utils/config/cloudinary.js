@@ -1,4 +1,5 @@
 //import { v2 as cloudinary } from 'cloudinary';
+require("dotenv").config(); 
 const cloudinary = require('cloudinary').v2;
 const multer = require('multer');
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
@@ -56,6 +57,7 @@ const Property = require('../../models/Property');
     });
 
 const storage = new CloudinaryStorage({
+  
     cloudinary: cloudinary,
     params: {
         folder: 'properties', // Folder name in Cloudinary
@@ -64,7 +66,7 @@ const storage = new CloudinaryStorage({
 });
 
 
-async function deleteProperty(req, res) {
+async function cdeleteProperty(req, res) {
     console.log("check "+ req.params);
     try {
         const { id } = req.params; // Property ID from the request parameters
@@ -92,6 +94,7 @@ async function deleteProperty(req, res) {
       res.status(500).json({ error: 'Internal server error' });
     }
   }
+
 const upload = multer({ storage });
 
-module.exports = { cloudinary, upload, deleteProperty };
+module.exports = { cloudinary, upload, cdeleteProperty };

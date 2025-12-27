@@ -6,19 +6,34 @@ const bodyParser = require('body-parser');
 const session = require('express-session');
 const csrf = require('csurf');
 const passport = require("passport");
+const RedisStore = require("connect-redis")(session); // ✅ works in v5
+const Redis = require("ioredis");
+//const redisClient = new Redis();
 // Import routes
 const signupRoutes = require(path.join("../routes/signup"));
 const loginRoutes = require(path.join("../routes/login"));
 const authRoutes = require(path.join('../routes/auth'));
 const propertyRoutes = require(path.join('../routes/properties'));
 const adminRoutes = require(path.join('../routes/admin'));
+const agentRoutes = require(path.join('../routes/agent'));
+const publicRoutes = require(path.join('../routes/public'));
 //const { MongoClient } = require('mongodb');
 const MongoStore = require('connect-mongo');
+
 require('dotenv').config();
+console.log("From cloudinary.js", process.env.CLOUDINARY_API_KEY);
 const cors = require("cors");
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5050;
 //dotenv.config();
 const app = express();
+app.use((req, res, next) => {
+  const start = Date.now();
+  res.on('finish', () => {
+    const duration = Date.now() - start;
+    console.log(`${new Date().toISOString()} - ${req.method} ${req.originalUrl} - ${res.statusCode} (${duration}ms)`);
+  });
+  next();
+});
 app.use(express.json());
 require("../middlewares/passport"); // Load Google OAuth Config
 //Middleware
@@ -33,52 +48,106 @@ app.use(passport.initialize());
 app.use(express.urlencoded({ extended: true }));  // For form submissions
 //const mongoClient = new MongoClient(process.env.MONGO_URI_Local, { useNewUrlParser: true, useUnifiedTopology: true });
 // ✅ Allow requests from frontend
+// Relaxed CORS for mobile debugging - ALLOW ALL in development
 app.use(cors({
-  origin: "http://localhost:3000", // Change this to your frontend URL in production
-  credentials: true // Allow cookies & authentication headers
+  origin: '*',
+  credentials: true
 }));
 
-// ✅ Allow CORS headers for all responses
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "http://localhost:3000");
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  res.header("Access-Control-Allow-Credentials", "true");
-  next();
-});
+// Manual CORS headers removed to let cors() middleware handle it correctly
 
-app.use(
-  session({
-      secret: process.env.SESSION_SECRET, // A random secret string
-      resave: false, // Avoid saving sessions that have not been modified
-      saveUninitialized: false, // Don't save uninitialized sessions
-      store: MongoStore.create({
-          mongoUrl: process.env.MONGO_URI_Prod, // Use your MongoDB connection string
-          collectionName: 'sessions', // Optional: Customize the collection name
-      }),
-      cookie: {
-          secure: false,//process.env.MODE_ENV === 'production', // Use HTTPS in production
-          httpOnly: true, // Prevent client-side JavaScript from accessing cookies
-          maxAge: 1000 * 60 * 60, // Set cookie expiration (e.g., 1 day)
-      },
-  })
-);
+// app.use(
+//   session({
+//       secret: process.env.SESSION_SECRET, // A random secret string
+//       resave: false, // Avoid saving sessions that have not been modified
+//       saveUninitialized: false, // Don't save uninitialized sessions
+//       store: MongoStore.create({
+//           mongoUrl: process.env.MONGO_URI_Local, // Use your MongoDB connection string
+//           collectionName: 'sessions', // Optional: Customize the collection name
+//       }),
+//       cookie: {
+//           secure: false,//process.env.MODE_ENV === 'production', // Use HTTPS in production
+//           httpOnly: true, // Prevent client-side JavaScript from accessing cookies
+//           maxAge: 1000 * 60 * 60, // Set cookie expiration (e.g., 1 day)
+//       },
+//   })
+// );
+
+// app.use(
+//   session({
+//     store: new redisStore({ client: redisClient }),
+//     secret: process.env.SESSION_SECRET, // use .env in production
+//     resave: false,
+//     saveUninitialized: false,
+//     cookie: {
+//       maxAge: 15 * 60 * 1000, // 15 mins total lifespan
+//     },
+//     rolling: true, // ⏰ refresh maxAge on each request (idle timeout)
+//   })
+// );
+
+// // 🔌 Connect to Redis
+// const redisClient = new Redis({
+//   host: "localhost",
+//   port: 6379,
+//   // password: "your_password", // if needed
+// });
+
+// // ✅ Use class directly
+// const store = new RedisStore({
+//   client: redisClient,
+//   prefix: "sess:",
+// });
+
+// app.use(cors({
+//   origin: "http://localhost:3000",
+//   credentials: true,
+// }));
+
+// app.use(express.json());
+
+// app.use(session({
+//   store,
+//   secret: "your_secret_key",
+//   resave: false,
+//   saveUninitialized: false,
+//   rolling: true,
+//   cookie: {
+//     maxAge: 15 * 60 * 1000, // 15 min
+//     secure: false,
+//     httpOnly: true,
+//   },
+// }));
+// const redisClient = new Redis();
+// app.use(session({
+//   store: new RedisStore({ client: redisClient }),
+//   secret: process.env.SESSION_SECRET,
+//   resave: false,
+//   saveUninitialized: false,
+//   rolling: true,
+//   cookie: {
+//     maxAge: 15 * 60 * 1000,
+//     secure: false,
+//     httpOnly: true,
+//   },
+// }));
+
 
 app.use('/admin', adminRoutes);
-
+app.use('/public', publicRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/properties', propertyRoutes);
-
+app.use('/agent', agentRoutes);
 mongoose.connect(process.env.MONGO_URI_Prod).then(() => console.log("MongoDB connected"))
   .catch((err) => console.log("MongoDB connection error: ", err));
-  //console.log("MONGODB_URI_Prod:", process.env.MONGO_URI_Prod);
-  //console.log("All Environment Variables:", process.env);
+//console.log("MONGODB_URI_Prod:", process.env.MONGO_URI_Prod);
+//console.log("All Environment Variables:", process.env);
 
 
 // Set the view engine to EJS
 app.set('view engine', 'ejs');
 
-// Set the directory for the views
+// Set the directory for the views 
 app.set('views', path.join(__dirname, '..', 'views')); // This points to the views folder at the root
 
 // Serve static files (like CSS/JS) from the public directory
@@ -110,7 +179,7 @@ app.get('/Home', (req, res) => {
 // });
 
 app.get('/contact', (req, res) => {
-    res.render('contact', { title: 'Contact', message: 'Reach out to us!' });
+  res.render('contact', { title: 'Contact', message: 'Reach out to us!' });
 });
 
 
@@ -124,7 +193,7 @@ app.use('/login', loginRoutes);
 // app.get('/', (req, res) => {
 //     res.send('Server is running!');
 //   });
-  
-  app.listen(PORT, () => {
-    console.log(`Server is omg listening on port ${PORT}`);
-  });
+
+app.listen(PORT, () => {
+  console.log(`Server is omg listening on port ${PORT}`);
+});

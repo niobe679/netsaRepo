@@ -5,7 +5,7 @@ const UserSchema = new mongoose.Schema({
     googleId: {type: String},
     profileImage: {type: String},
     email: { type: String, required: true, unique: true },
-    password_hash: { type: String, required: true, unique: true },
+    password_hash: { type: String, required: true },
     phone_number: { type: String, unique: true },
     role: { type: String }, // Add role here
     is_verified: { type: Boolean},

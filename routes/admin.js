@@ -6,26 +6,49 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const path = require('path');
 const User = require('../models/User');
-const { cloudinary, upload, deleteProperty } = require(path.join('../utils/config/cloudinary')); // Import from config
+const { cloudinary, upload } = require(path.join('../utils/config/cloudinary')); // Import from config
 //const express = require('express');
 const app = express();
 const requireAuth = require('../middlewares/auth');
 const multer = require('multer');
 const fs = require('fs/promises'); 
-const { login, test, refresh_token } = require("../controllers/admincontroller");
+const { login, test, refresh_token, logoutUser } = require("../controllers/admincontroller");
+const { bulkImport, getProperties, addProperties, updateProperty, deleteProperty, toggleFeaturedProperty } = require("../controllers/propertycontroller");
 const authenticateToken = require("../middlewares/authenticatetoken");
 const authenticateAdmin = require("../middlewares/isAdmin");
+const {createUser, deleteUser, getAllUsers, updateUser} = require("../controllers/usercontroller");
 //const upload = multer({ dest: 'uploads/' }); // Temporary storage
 // Admin Login Page
 
-// User Login
+// User Admin Login
 router.post("/main/login", login);
-//user logout
-//router.post("/logout", authenticateToken, logoutUser);
+// User Admin logout
+// router.post("/logout", authenticateToken /*logoutUser*/);
 // access with token
 router.get("/main/test", authenticateAdmin, test);
 // refresh token
 router.post("/main/refresh", refresh_token);
+
+//properties
+// Get all properties
+router.get('/main/properties', isAdmin, getProperties);
+//bulk add
+router.post("/main/add-bulk", bulkImport);
+// Accept multiple fields: images_0, images_1, etc.
+router.post("/main/addproperties", isAdmin, upload.any(), addProperties);
+//edit property data including deleting images
+router.put("/main/properties/edit/:id", isAdmin, upload.any(), updateProperty)
+//delete property
+router.delete("/main/properties/:id", isAdmin, deleteProperty);
+//toggele featured property
+router.patch("/main/properties/featured/:id", isAdmin, toggleFeaturedProperty);
+
+// User CRUD routes
+router.get("/main/users", isAdmin, getAllUsers);
+router.post("/main/users", isAdmin, createUser);
+router.put("/main/users/:id", isAdmin, updateUser);
+router.delete("/main/users/:id", isAdmin, deleteUser);
+
 // Admin dashboard
 router.get('/main/dashboard', isAdmin, (req, res) => {
     res.render('admin/dashboard', { user: req.session.user });
@@ -33,7 +56,6 @@ router.get('/main/dashboard', isAdmin, (req, res) => {
 
 
 router.get('/login', (req, res) => {
-
 res.render('admin/login', { error: null });
 });
 router.get("/auth/me", (req, res) => {
@@ -80,14 +102,21 @@ router.get('/dashboard', isAdmin, (req, res) => {
 
 // Property Management
 router.get('/properties', isAdmin, async (req, res) => {
-    const properties = await Property.find();
-    res.render('admin/properties', { properties });
+    // const properties = await Property.find();
+    // res.render('admin/properties', { properties });
+  try {
+    const properties = await Property.find(); // mongoose model
+    console.log(properties);
+    res.json(properties);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch properties" });
+  }
 });
 
 router.get('/addproperties', isAdmin, (req, res) => {
     res.render('admin/addproperties');
 });
-router.post('/addproperties', isAdmin, upload.array('images', 10), async (req, res) => {
+router.post('/adddproperties', isAdmin, upload.array('images', 10), async (req, res) => {
     console.log('Request Body:', req.body); // Debug form data
     console.log('Request Files:', req.files); // Debug uploaded files
 
@@ -95,11 +124,12 @@ router.post('/addproperties', isAdmin, upload.array('images', 10), async (req, r
         if (!req.files || req.files.length === 0) {
             return res.status(400).send('No image uploaded');
         }
-
+        var i=0;
         // Map over uploaded files to structure image URLs and public IDs
         const imageUrls = req.files.map((file) => ({
             url: file.path, // `path` is already set by multer-storage-cloudinary
             public_id: file.filename, // `filename` is set by multer-storage-cloudinary
+            order: i++,
         }));
 
         // Save property data with image URLs in MongoDB
@@ -180,14 +210,36 @@ router.post('/Nahaddproperties', isAdmin, upload.array('images', 10), async (req
       }
 });
 
-router.get('/edit/:id', isAdmin, async (req, res) => {
-    const property = await Property.findById(req.params.id);
-    res.render('admin/editProperty', { property });
+router.put('/edit/:id', isAdmin, async (req, res) => {
+    // const property = await Property.findById(req.params.id);
+    // res.render('admin/editProperty', { property });
+    try {
+    var i=0;
+    // Map over uploaded files to structure image URLs and public IDs
+    const imageUrls = req.files.map((file) => ({
+        url: file.path, // `path` is already set by multer-storage-cloudinary
+        public_id: file.filename, // `filename` is set by multer-storage-cloudinary
+        order: i++,
+    }));
+    console.log(" >> req >> ",req.body);
+    const updated = await Property.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    res.json(updated);
+  } catch (err) {
+    res.status(500).json({ error: "Update failed" });
+  }
 });
 
 router.post('/properties/edit/:id', isAdmin, async (req, res) => {
+    var i=0;
+    // Map over uploaded files to structure image URLs and public IDs
+    const imageUrls = req.files.map((file) => ({
+        url: file.path, // `path` is already set by multer-storage-cloudinary
+        public_id: file.filename, // `filename` is set by multer-storage-cloudinary
+        order: i++,
+    }));
+    console.log(" >> req >> ",req.body);
     const { name, location, price, bedrooms, squarefeet, type } = req.body;
-    await Property.findByIdAndUpdate(req.params.id, { name, location, price, bedrooms, squarefeet, type });
+    await Property.findByIdAndUpdate(req.params.id, { name, location, price, bedrooms, squarefeet, type, imageUrls });
     res.redirect('admin/properties');
 });
 

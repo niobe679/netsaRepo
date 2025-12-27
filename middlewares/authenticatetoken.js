@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 
-const authenticateToken = async (req, res, next) => {
+const authenticateToken =  (req, res, next) => {
     const token = req.headers.authorization?.split(" ")[1];
     console.log(":: "+ token, req.headers.authorization);
     if (!token) {
@@ -12,8 +12,8 @@ const authenticateToken = async (req, res, next) => {
         //console.log("decoded ",decoded);
         // Attach user info to request
         req.user = { id: decoded.id, role: decoded.role, token: token };
-        return res.status(200).json({ id: decoded.id, role: decoded.role, token: token  });
-        //next();
+        //return res.status(200).json({ id: decoded.id, role: decoded.role, token: token  });
+        next();
     } catch (error) {
         console.log(error);
         return res.status(403).json({ error: "Invalid token" });
@@ -34,7 +34,7 @@ const authenticateRefreshToken = async (req, res, next) => {
         req.user = { id: decoded.id, role: decoded.role, token: token };
         
         return res.status(200).json({ id: decoded.id, role: decoded.role, token: token  });
-        //next();
+        next();
     } catch (error) {
         console.log(error);
         return res.status(403).json({ error: "Invalid token" });

@@ -6,12 +6,25 @@ const propertySchema = new mongoose.Schema({
   location: String,
   bedrooms: Number,
   squarefeet: Number,
-  type: String,
+  type: String,  
   name: String,
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+  },
+  updatedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+  },
+  isFeatured: {
+    type: Boolean,
+    default: false,
+  },
   imageUrl: [
     {
       url: String,
       public_id: String, // This must be stored
+      order: Number,
     },
   ], // Array of image URLs
 });

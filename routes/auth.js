@@ -2,18 +2,16 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-//const express = require('express');
 const router = express.Router();
-const app = express();
 const requireAuth = require('../middlewares/auth');
-const { registerUser,verifyAccount, loginUser, logoutUser, test, refresh_token } = require("../controllers/authcontroller");
+const { registerUser, verifyAccount, loginUser, logoutUser, test, refresh_token, googleMobileLogin, googleWebLogin } = require("../controllers/authcontroller");
 const validateRegistration = require("../middlewares/validateregistration");
-const {authenticateToken, authenticateRefreshToken} = require("../middlewares/authenticatetoken");
+const { authenticateToken, authenticateRefreshToken } = require("../middlewares/authenticatetoken");
 const passport = require("passport");
 const _passport = require("../middlewares/passport");
 
 // Initialize Passport
-app.use(passport.initialize());
+// router.use(passport.initialize());
 // Register Route
 router.post('/main/register', validateRegistration, registerUser);
 // User Login
@@ -44,8 +42,7 @@ router.get(
 
 router.post('/register', async (req, res) => {
     console.log(req.body.username);
-    try 
-    {
+    try {
         const { username, password } = req.body;
         const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = new User({ username, password: hashedPassword });
@@ -53,7 +50,7 @@ router.post('/register', async (req, res) => {
         res.status(201).send("User registered");
         //res.redirect("/")
     }
-    catch(error){
+    catch (error) {
         res.status(444).send("not registered");
     }
 });
@@ -62,21 +59,21 @@ router.post('/login', async (req, res) => {
     console.log("hitt");
     const { username, password } = req.body;
     const user = await User.findOne({ username });
-    console.log("user: "+ user);
+    console.log("user: " + user);
     if (!user || !(await bcrypt.compare(password, user.password))) {
         return res.status(401).send("Invalid credentials");
     }
-    else{
+    else {
         console.log("user logged in");
 
-    // Save user info to session
-    req.session.user = { id: user._id, username: user.username };
-    console.log(req.session.user);
+        // Save user info to session
+        req.session.user = { id: user._id, username: user.username };
+        console.log(req.session.user);
         res.status(201).send("User logged in");
     }
     //const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
     //res.json({ token });
-}); 
+});
 
 router.get("/verify/:token", verifyAccount);
 
@@ -90,15 +87,15 @@ router.post('/llogout', (req, res) => {
     });
 });
 
-app.get('/set-session', (req, res) => {
-    req.session.user = { 
+router.get('/set-session', (req, res) => {
+    req.session.user = {
         name: 'John Doe',
         role: 'admin',
     };
     res.send('Session has been set!');
 });
 
-app.get('/get-session', (req, res) => {
+router.get('/get-session', (req, res) => {
     if (req.session.user) {
         res.send(`Hello, ${req.session.user.name}. Your role is ${req.session.user.role}.`);
     } else {
@@ -106,7 +103,7 @@ app.get('/get-session', (req, res) => {
     }
 });
 
-app.get('/destroy-session', (req, res) => {
+router.get('/destroy-session', (req, res) => {
     req.session.destroy((err) => {
         if (err) {
             return res.status(500).send('Failed to destroy session.');
@@ -118,5 +115,10 @@ app.get('/destroy-session', (req, res) => {
 router.get('/about', requireAuth, (req, res) => {
     res.status(200).send(`Welcome, ${req.session.user.username}`);
 });
+
+
+// Mobile Google Auth
+router.post("/google-mobile", googleMobileLogin);
+router.post("/google-web", googleWebLogin);
 
 module.exports = router;
