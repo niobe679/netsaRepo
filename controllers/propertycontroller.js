@@ -39,7 +39,7 @@ const getProperties = async (req, res) => {
   try {
     const properties = await Property.find();
     if (!properties || properties.length === 0) {
-      return res.status(404).json({ message: "No properties found" });  
+      return res.status(404).json({ message: "No properties found" });
     }
     if (req.user.role === 'admin') {
       // Admin can see all properties
@@ -59,13 +59,30 @@ const getProperties = async (req, res) => {
   }
 };
 
+const getPropertyById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const property = await Property.findById(id);
+    if (!property) {
+      return res.status(404).json({ message: "Property not found" });
+    }
+    res.json(property);
+  } catch (err) {
+    console.error("Error fetching property:", err);
+    res.status(500).json({ error: "Failed to fetch property", details: err.message });
+  }
+};
+
 const getPropertyOwner = async (req, res) => {
   try {
     const { id } = req.params;
     console.log("Property ID:", id);
     const ownerId = await Property.findById(id).select('createdBy');
+    if (!ownerId || !ownerId.createdBy) {
+      console.log("Owner not found for property:", id);
+      return res.status(404).json({ message: "Property or owner not found" });
+    }
     console.log("Owner ID:", ownerId.createdBy);
-    if (!ownerId) return res.status(404).json({ message: "Property or owner not found" });
     const owner_name = await User.findById(ownerId.createdBy).select('full_name');
     const owner_number = await User.findById(ownerId.createdBy).select('phone_number');
     console.log("Owner:", owner_name, owner_number);
@@ -90,47 +107,106 @@ const getPublicProperties = async (req, res) => {
 };
 
 const addProperties = async (req, res) => {
-
   try {
     console.log("Cloudinary config:", cloudinary.config());
+    console.log("Request Body:", req.body);
+    console.log("Request Files:", req.files);
 
+    let parsed;
     const rawData = req.body.properties;
-    const parsed = typeof rawData === "string" ? JSON.parse(rawData) : rawData;
-    const files = req.files || [];
 
-    // Group files by fiel d name: images_0, images_1, etc.
-    const groupedFiles = {};
-    for (const file of files) {
-      const match = file.fieldname.match(/^images_(\d+)/);
-      if (match) {
-        const index = parseInt(match[1], 10);
-        if (!groupedFiles[index]) groupedFiles[index] = [];
-
-        const imageOrders = parsed[index]?.imageOrders;
-        groupedFiles[index].push({
-          url: file.path,
-          public_id: file.filename,
-          order: imageOrders?.[groupedFiles[index].length] ?? groupedFiles[index].length,
-        });
-      }
+    if (rawData) {
+      parsed = typeof rawData === "string" ? JSON.parse(rawData) : rawData;
+    } else {
+      const { properties, ...singleProp } = req.body;
+      parsed = [singleProp];
     }
 
+    if (!Array.isArray(parsed)) {
+      parsed = [parsed];
+    }
+
+    const files = req.files || [];
+    const groupedFiles = {};
+
+    // 1. Collect from Files (Real Uploads)
+    for (const file of files) {
+      const match = file.fieldname.match(/^images_(\d+)/);
+      let index = 0;
+      if (match) {
+        index = parseInt(match[1], 10);
+      } else if (parsed.length === 1) {
+        index = 0;
+      } else {
+        continue;
+      }
+
+      if (!groupedFiles[index]) groupedFiles[index] = [];
+      const imageOrders = parsed[index]?.imageOrders;
+      groupedFiles[index].push({
+        url: file.path,
+        public_id: file.filename,
+        order: imageOrders?.[groupedFiles[index].length] ?? groupedFiles[index].length,
+      });
+    }
+
+    // 2. Collect from Body (Mock/Direct URLs)
+    for (const key in req.body) {
+      const match = key.match(/^images_(\d+)/);
+      let index = -1;
+      if (match) {
+        index = parseInt(match[1], 10);
+      } else if (parsed.length === 1 && key === 'imageUrl') {
+        // Support direct imageUrl field if single property
+        index = 0;
+      }
+
+      if (index === -1) continue;
+      if (index >= parsed.length && parsed.length > 1) continue;
+
+      const realIndex = (parsed.length === 1) ? 0 : index;
+      if (!groupedFiles[realIndex]) groupedFiles[realIndex] = [];
+
+      const value = req.body[key];
+      const values = Array.isArray(value) ? value : [value];
+
+      for (const v of values) {
+        if (typeof v === 'string' && (v.startsWith('http') || v.startsWith('data:image'))) {
+          // Only add if not already present by URL
+          if (!groupedFiles[realIndex].some(img => img.url === v)) {
+            groupedFiles[realIndex].push({
+              url: v,
+              public_id: `manual_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+              order: groupedFiles[realIndex].length
+            });
+          }
+        }
+      }
+    }
 
     const saved = [];
 
     for (let i = 0; i < parsed.length; i++) {
       const prop = parsed[i];
-      console.log("Saving property:", {
-  ...prop,
-  imageUrl: groupedFiles[i]
-});
-console.log("Parsed property imageOrders:", parsed[i]?.imageOrders);
+      let finalImages = groupedFiles[i] || [];
+
+      // Check for stringified imageUrl if still empty
+      if (finalImages.length === 0 && prop.imageUrl) {
+        try {
+          const imgData = typeof prop.imageUrl === 'string' ? JSON.parse(prop.imageUrl) : prop.imageUrl;
+          finalImages = Array.isArray(imgData) ? imgData : [imgData];
+        } catch (e) {
+          console.warn("Could not parse prop.imageUrl", e);
+        }
+      }
+
+      console.log(`Saving property ${i}:`, { ...prop, imageUrl: finalImages });
 
       const property = new Property({
         ...prop,
-        imageUrl: groupedFiles[i],
-        createdBy: req.user.id, // Assuming req.user.id is the ID of the user creating the property
-        updatedBy: req.user.id, // Assuming req.user.id is the ID of the user updating the property
+        imageUrl: finalImages,
+        createdBy: req.user?.id || prop.createdBy || req.body.createdBy,
+        updatedBy: req.user?.id || prop.updatedBy || req.body.updatedBy,
       });
       await property.save();
       saved.push(property);
@@ -152,50 +228,94 @@ const updateProperty = async (req, res) => {
     const property = await Property.findById(id);
     if (!property) return res.status(404).json({ message: "Property not found" });
 
-    // Parse the sent JSON fields (stringified in FormData)
     const body = req.body;
-    const parsedImageUrl = JSON.parse(body.imageUrl || "[]");
+    console.log("Update Body:", body);
+    console.log("Update Files:", req.files);
 
-    // Group new uploaded files by original filename (cloudinary auto-generated names)
+    // 1. Gather all potential images
+    let finalImages = [];
+
+    // a. Check for JSON stringified imageUrl (current pattern)
+    if (body.imageUrl) {
+      try {
+        const parsed = typeof body.imageUrl === 'string' ? JSON.parse(body.imageUrl) : body.imageUrl;
+        finalImages = Array.isArray(parsed) ? parsed : [parsed];
+      } catch (e) {
+        console.warn("Failed to parse body.imageUrl");
+      }
+    }
+
+    // b. Group new uploaded files from Multer
     const uploadedFiles = {};
     for (const file of req.files || []) {
-      uploadedFiles[file.originalname] = {
+      // Use both fieldname and originalname to be safe
+      uploadedFiles[file.fieldname] = {
         url: file.path,
         public_id: file.filename,
       };
+      uploadedFiles[file.originalname] = uploadedFiles[file.fieldname];
     }
 
-    // Merge and rebuild imageUrl with correct order
-    const finalImages = parsedImageUrl.map((img, i) => {
-      if (img.fileName && uploadedFiles[img.fileName]) {
-        // 🆕 Image was uploaded
-        return {
-          ...uploadedFiles[img.fileName],
-          order: i,
-        };
-      } else {
-        // 🧾 Existing image
-        return {
-          url: img.url,
-          public_id: img.public_id,
-          order: i,
-        };
+    // c. Collect string URLs from body (images_n or direct fields)
+    for (const key in body) {
+      if (key.startsWith('images_') || key === 'imageUrls') {
+        const val = body[key];
+        const vals = Array.isArray(val) ? val : [val];
+        for (const v of vals) {
+          if (typeof v === 'string' && (v.startsWith('http') || v.startsWith('data:image'))) {
+            if (!finalImages.some(img => img.url === v)) {
+              finalImages.push({
+                url: v,
+                public_id: `manual_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+              });
+            }
+          }
+        }
       }
+    }
+
+    // d. Process files that matched images_n pattern
+    for (const key in uploadedFiles) {
+      const match = key.match(/^images_(\d+)/);
+      if (match) {
+        finalImages.push({
+          ...uploadedFiles[key],
+        });
+      }
+    }
+
+    // 2. Resolve fileName placeholders from uploadedFiles if using the parsedImageUrl pattern
+    finalImages = finalImages.map((img, i) => {
+      if (img.fileName && uploadedFiles[img.fileName]) {
+        return { ...uploadedFiles[img.fileName], order: i };
+      }
+      return { ...img, order: i };
     });
 
-    // (Optional) Remove old Cloudinary images no longer used
+    // 3. Remove old Cloudinary images no longer used
     const oldPublicIds = property.imageUrl.map((img) => img.public_id);
     const newPublicIds = finalImages.map((img) => img.public_id);
-    const removed = oldPublicIds.filter((id) => !newPublicIds.includes(id));
-    for (const id of removed) {
-      await cloudinary.uploader.destroy(id);
+    const removed = oldPublicIds.filter((id) => id && !newPublicIds.includes(id) && !id.startsWith('manual_'));
+
+    for (const pid of removed) {
+      try {
+        await cloudinary.uploader.destroy(pid);
+      } catch (e) {
+        console.error("Failed to delete old image from Cloudinary", pid);
+      }
     }
 
-    // Update fields
+    // 4. Update the property object
+    // Map 'description' to 'rob' if sent from mobile
+    const updateData = { ...body };
+    if (updateData.description && !updateData.rob) {
+      updateData.rob = updateData.description;
+    }
+
     property.set({
-      ...body,
-      updatedBy: req.user.id, // Assuming req.user.id is the ID of the user making the update
+      ...updateData,
       imageUrl: finalImages,
+      updatedBy: req.user?.id || body.updatedBy,
     });
 
     await property.save();
@@ -210,11 +330,11 @@ const deleteProperty = async (req, res) => {
   try {
     const property = await Property.findById(req.params.id);
     if (!property) return res.status(404).json({ message: "Property not found" });
-    if (Property.imageUrl!=null)
+    if (Property.imageUrl != null)
     // Delete each image from Cloudinary
     {
       for (const img of property.imageUrl) {
-      await cloudinary.uploader.destroy(img.public_id);
+        await cloudinary.uploader.destroy(img.public_id);
       }
     }
     await property.deleteOne(); // or property.remove()
@@ -258,4 +378,4 @@ const toggleFeaturedProperty = async (req, res) => {
   }
 };
 
-module.exports = {bulkImport, getProperties, addProperties, updateProperty, deleteProperty, getPublicProperties, getFeaturedProperty, toggleFeaturedProperty, getPropertyOwner};
+module.exports = { bulkImport, getProperties, addProperties, updateProperty, deleteProperty, getPublicProperties, getFeaturedProperty, toggleFeaturedProperty, getPropertyOwner, getPropertyById };

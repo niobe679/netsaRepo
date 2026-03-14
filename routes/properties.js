@@ -5,7 +5,7 @@ const router = express.Router();
 const Property = require('../models/Property');
 const mongoose = require('mongoose');
 const { authenticateToken } = require("../middlewares/authenticatetoken");
-const getPropertyOwner = require("../controllers/propertycontroller").getPropertyOwner;
+const { getPropertyOwner, getPropertyById } = require("../controllers/propertycontroller");
 // Multer setup for handling file uploads
 const multer = require('multer');
 
@@ -37,7 +37,7 @@ router.post('/pagesearch', async (req, res) => {
 
       // Filter the properties based on the query and filter
       console.log('Filters:', filters); // Debugging log
-      const results = await Property.find(filters);
+      const results = await Property.find(filters).sort({ createdAt: -1 });
       res.status(201).json({ results });
     }
     else {
@@ -128,7 +128,7 @@ router.get('/search', async (req, res) => {
 
       // Filter the properties based on the query and filter
       console.log('Filters:', filters); // Debugging log
-      const properties = await Property.find(filters);
+      const properties = await Property.find(filters).sort({ createdAt: -1 });
       res.render('searchResult', { properties });
     }
     else {
@@ -215,7 +215,7 @@ router.post('/add-property', authenticateToken, upload.single('image'), async (r
 
 router.get('/', async (req, res) => {
   try {
-    const properties = await Property.find(); // Fetch all properties
+    const properties = await Property.find().sort({ createdAt: -1 }); // Fetch all properties, newest first
     res.json(properties);
   } catch (error) {
     console.error('Error fetching properties:', error);
@@ -225,7 +225,7 @@ router.get('/', async (req, res) => {
 
 router.get('/mine', authenticateToken, async (req, res) => {
   try {
-    const properties = await Property.find({ createdBy: req.user.id });
+    const properties = await Property.find({ createdBy: req.user.id }).sort({ createdAt: -1 });
     res.json(properties);
   } catch (error) {
     console.error('Error fetching my listings:', error);
@@ -287,11 +287,32 @@ router.delete('/:id', authenticateToken, async (req, res) => {
   }
 });
 
+router.put('/:id/attach-virtual-tour', authenticateToken, async (req, res) => {
+  try {
+    const { virtualTourId } = req.body;
+    const property = await Property.findById(req.params.id);
+
+    if (!property) return res.status(404).json({ error: 'Property not found' });
+
+    if (property.createdBy.toString() !== req.user.id && req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Unauthorized to edit this property' });
+    }
+
+    property.virtualTourId = virtualTourId;
+    await property.save();
+
+    res.json(property);
+  } catch (error) {
+    console.error('Error attaching virtual tour:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 router.get('/rentals', async (req, res) => {
   try {
     const filters = {};
     filters.rob = { $regex: 'rent', $options: 'i' };
-    const properties = await Property.find(filters); // Fetch all properties
+    const properties = await Property.find(filters).sort({ createdAt: -1 }); // Fetch all properties, newest first
     res.render('rentals', { properties });
   } catch (error) {
     console.error('Error fetching properties:', error);
@@ -302,7 +323,7 @@ router.get('/rentals', async (req, res) => {
 router.get('/home', async (req, res) => {
   console.log("home req")
   try {
-    const properties = await Property.find(); // Fetch all properties
+    const properties = await Property.find().sort({ createdAt: -1 }); // Fetch all properties, newest first
     res.render('properties', { properties });
   } catch (error) {
     console.error('Error fetching properties:', error);
@@ -312,7 +333,7 @@ router.get('/home', async (req, res) => {
 router.get('/mobile/home', async (req, res) => {
   console.log("home req");
   try {
-    const properties = await Property.find(); // Fetch all properties
+    const properties = await Property.find().sort({ createdAt: -1 }); // Fetch all properties, newest first
     res.json({ properties }); // Send properties as JSON
   } catch (error) {
     console.error('Error fetching properties:', error);
@@ -338,5 +359,7 @@ function handleSearch(key) {
     // Perform string-based search logic
   }
 }
+
+router.get('/:id', getPropertyById);
 
 module.exports = router;

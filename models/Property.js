@@ -5,8 +5,12 @@ const propertySchema = new mongoose.Schema({
   rob: String,
   location: String,
   bedrooms: Number,
+  bathrooms: Number,
   squarefeet: Number,
-  type: String,  
+  lotSize: Number,
+  latitude: Number,
+  longitude: Number,
+  type: String,
   name: String,
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
@@ -27,6 +31,13 @@ const propertySchema = new mongoose.Schema({
       order: Number,
     },
   ], // Array of image URLs
+  virtualTourId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'VirtualTour',
+    default: null
+  }
+}, {
+  timestamps: true // Automatically adds createdAt and updatedAt fields
 });
 
 const Property = mongoose.model('Property', propertySchema);

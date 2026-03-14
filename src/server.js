@@ -27,11 +27,7 @@ const PORT = process.env.PORT || 5050;
 //dotenv.config();
 const app = express();
 app.use((req, res, next) => {
-  const start = Date.now();
-  res.on('finish', () => {
-    const duration = Date.now() - start;
-    console.log(`${new Date().toISOString()} - ${req.method} ${req.originalUrl} - ${res.statusCode} (${duration}ms)`);
-  });
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
   next();
 });
 app.use(express.json());
@@ -137,8 +133,9 @@ app.use('/admin', adminRoutes);
 app.use('/public', publicRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/properties', propertyRoutes);
+app.use('/api/virtual-tours', require('../routes/virtualTour'));
 app.use('/agent', agentRoutes);
-mongoose.connect(process.env.MONGO_URI_Prod).then(() => console.log("MongoDB connected"))
+mongoose.connect(process.env.MONGO_URI_Local).then(() => console.log("MongoDB connected"))
   .catch((err) => console.log("MongoDB connection error: ", err));
 //console.log("MONGODB_URI_Prod:", process.env.MONGO_URI_Prod);
 //console.log("All Environment Variables:", process.env);
